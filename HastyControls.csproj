@@ -1,0 +1,87 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>netstandard2.1</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<RootNamespace>HastyControls</RootNamespace>
+		<LangVersion>default</LangVersion>
+		<IsPackable>false</IsPackable>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<FileVersion>1.0.0.0</FileVersion>
+		<NeutralLanguage>en-US</NeutralLanguage>
+		<AssemblyName>HastyControls</AssemblyName>
+		<LangVersion>latest</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+		<GenerateDependencyFile>false</GenerateDependencyFile>
+		<DebugType>none</DebugType>
+
+		<HasteDir Condition=" '$(HasteDir)' == '' ">C:\Program Files (x86)\Steam\steamapps\common\Haste</HasteDir>
+
+		<Platforms>AnyCPU;x64</Platforms>
+	</PropertyGroup>
+	<ItemGroup>
+	  <None Include="IniParser\IniParser.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="Assembly-CSharp">
+			<HintPath>$(HasteDir)\Haste_Data\Managed\Assembly-CSharp.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine">
+			<HintPath>$(HasteDir)\Haste_Data\Managed\UnityEngine.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.CoreModule">
+			<HintPath>$(HasteDir)\Haste_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.PhysicsModule">
+			<HintPath>$(HasteDir)\Haste_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+		</Reference>
+		<Reference Include="Unity.Localization">
+			<HintPath>$(HasteDir)\Haste_Data\Managed\Unity.Localization.dll</HintPath>
+		</Reference>
+		<Reference Include="Unity.InputSystem">
+			<HintPath>$(HasteDir)\Haste_Data\Managed\Unity.InputSystem.dll</HintPath>
+		</Reference>
+		<Reference Include="Unity.Mathematics">
+			<HintPath>$(HasteDir)\Haste_Data\Managed\Unity.Mathematics.dll</HintPath>
+		</Reference>
+		<Reference Include="Zorro.Core.Runtime">
+			<HintPath>$(HasteDir)\Haste_Data\Managed\Zorro.Core.Runtime.dll</HintPath>
+		</Reference>
+		<Reference Include="Zorro.UI.Runtime">
+			<HintPath>$(HasteDir)\Haste_Data\Managed\Zorro.UI.Runtime.dll</HintPath>
+		</Reference>
+		<Reference Include="Zorro.Localization">
+			<HintPath>$(HasteDir)\Haste_Data\Managed\Zorro.Localization.dll</HintPath>
+		</Reference>
+		<Reference Include="Zorro.ControllerSupport">
+			<HintPath>$(HasteDir)\Haste_Data\Managed\Zorro.ControllerSupport.dll</HintPath>
+		</Reference>
+		<Reference Include="Zorro.Settings.Runtime">
+			<HintPath>$(HasteDir)\Haste_Data\Managed\Zorro.Settings.Runtime.dll</HintPath>
+		</Reference>
+		<Reference Include="Landfall.Modding">
+			<HintPath>$(HasteDir)\Haste_Data\Managed\Landfall.Modding.dll</HintPath>
+		</Reference>
+		<Reference Include="Sirenix.Serialization">
+			<HintPath>$(HasteDir)\Haste_Data\Managed\Sirenix.Serialization.dll</HintPath>
+		</Reference>
+		<Reference Include="0Harmony">
+			<!-- HarmonyX from "Day" on workshop -->
+			<HintPath>C:\Program Files (x86)\Steam\steamapps\workshop\content\1796470\3408901301\0Harmony.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="SDL3.dll">
+			<Pack>true</Pack>
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	  <Exec Command="COPY &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\Workshop&quot;" />
+	  <Exec Command="COPY &quot;$(TargetDir)SDL3.dll&quot; &quot;$(ProjectDir)..\Workshop\SDL3.dll.assetbundle&quot;" />
+	</Target>
+</Project>
