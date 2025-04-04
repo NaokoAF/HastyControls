@@ -80,7 +80,7 @@ public class LandfallConfig
 		);
 
 		GyroEnabled = gyroCategory.CreateEntry("GyroEnabled", true,
-			"Enable motion controls on supported controllers (DualShock 4 and DualSense)."
+			"Enable motion controls on supported controllers."
 		);
 		GyroSpace = gyroCategory.CreateEntryEnum("GyroSpace", Core.GyroSpace.PlayerTurn,
 			"Algorithm used to convert real world movements to the in game camera.\n" +
@@ -124,8 +124,9 @@ public class LandfallConfig
 		SticksPowerCurve = sticksCategory.CreateEntry("CameraPowerCurve", 1f,
 			"Squish or stretch your right stick movements based on this value. Values above 1 squish motion closer to the center of the stick, values below 1 stretch them closer to the edge."
 		);
-		SticksDegreesPerSecond = sticksCategory.CreateEntry("CameraDegreesPerSecond", 180f,
-			"Right stick sensitivity. 180 means it takes 2 seconds while holding the stick all the way to the side to do a full rotation."
+		SticksDegreesPerSecond = sticksCategory.CreateEntry("CameraDegreesPerSecond", 0f,
+			"Right stick sensitivity override. A value of 180 means it takes 2 seconds to do a full rotation when holding the stick at the edge.\n" +
+			"A value of 0 means it uses the in-game slider instead."
 		);
 		SticksSensitivityRatio = sticksCategory.CreateEntry("CameraSensitivityRatio", 0.75f,
 			"Vertical right stick sensitivity multiplier. 0.75 means vertical sensitivity is 75% smaller than horizontal sensitivity."

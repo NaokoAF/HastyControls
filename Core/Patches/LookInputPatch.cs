@@ -32,8 +32,10 @@ internal static class LookInputPatch
 			}
 
 			// get sensitivity
-			//float gamepadSensitivity = gamepadSensitivitySettingRef(character)?.Value * 90f;
 			float gamepadSensitivity = Mod.Config.SticksDegreesPerSecond;
+			if (gamepadSensitivity == 0f)
+				gamepadSensitivity = (gamepadSensitivitySettingRef(character)?.Value ?? 1f) * 90f;
+
 			___lookInput = lookInput * gamepadSensitivity * Time.unscaledDeltaTime;
 			___lookInput.y *= Mod.Config.SticksSensitivityRatio;
 		}
