@@ -1,6 +1,5 @@
 ﻿using HastyControls.SDL3;
 using System.Numerics;
-using UnityEngine.InputSystem.LowLevel;
 
 namespace HastyControls.Core;
 
@@ -12,7 +11,7 @@ public unsafe class SDLManager
 
 	public event Action<SDLController>? ControllerAdded;
 	public event Action<SDLController>? ControllerRemoved;
-	public event Action<SDLController, GamepadButton, bool>? ControllerButtonUpdated;
+	public event Action<SDLController, ControllerButton, bool>? ControllerButtonUpdated;
 	public event Action<SDLController, SDL_SensorType, Vector3, ulong>? ControllerSensorUpdated;
 
 	SDL sdl;
@@ -102,7 +101,7 @@ public unsafe class SDLManager
 		if (!controllers.TryGetValue(evnt.which, out var controller)) return;
 		controller.SetButton(evnt.button, evnt.down);
 
-		ControllerButtonUpdated?.Invoke(controller, (GamepadButton)evnt.button, evnt.down);
+		ControllerButtonUpdated?.Invoke(controller, (ControllerButton)evnt.button, evnt.down);
 	}
 
 	void OnControllerAxisUpdate(SDL_GamepadAxisEvent evnt)

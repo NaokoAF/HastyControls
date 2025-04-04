@@ -1,6 +1,5 @@
 ﻿using HastyControls.SDL3;
 using System.Numerics;
-using UnityEngine.InputSystem.LowLevel;
 
 namespace HastyControls.Core;
 
@@ -111,12 +110,12 @@ public unsafe class ControllerManager
 		gyroStates.Remove(controller);
 	}
 
-	private void Sdl_ControllerButtonUpdated(SDLController controller, GamepadButton button, bool down)
+	private void Sdl_ControllerButtonUpdated(SDLController controller, ControllerButton button, bool down)
 	{
 		SetActiveController(controller);
 
 		// toggle gyro
-		if (down && (ControllerButton)button == config.GyroButton && config.GyroButtonMode == GyroButtonMode.Toggle)
+		if (down && button == config.GyroButton && config.GyroButtonMode == GyroButtonMode.Toggle)
 		{
 			gyroButtonState = !gyroButtonState;
 		}
