@@ -16,7 +16,7 @@ public class GyroPauser
 	{
 		this.config = config;
 
-		// pause gyro at the start of a level. very jank
+		// pause gyro at the start of a level to prevent looking at the floor on accident
 		SceneManager.activeSceneChanged += (_, _) => AddPauseTime();
 		GM_API.NewLevel += AddPauseTime;
 		GM_API.LevelRestart += AddPauseTime;
@@ -54,6 +54,6 @@ public class GyroPauser
 	void AddPauseTime()
 	{
 		gyroPauseOnce = true;
-		gyroPauseTime = config.GyroLevelStartPauseLength;
+		gyroPauseTime = 0.1f;
 	}
 }

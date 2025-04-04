@@ -15,7 +15,6 @@ public class Config
 	public float GyroSmoothingThreshold { get; set; }
 	public float GyroSmoothingTime { get; set; }
 	public bool GyroDisableWhenWalking { get; set; }
-	public float GyroLevelStartPauseLength { get; set; }
 
 	public float SticksDeadzones { get; set; }
 	public float SticksPowerCurve { get; set; }

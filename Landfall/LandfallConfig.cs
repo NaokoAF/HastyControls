@@ -20,7 +20,6 @@ public class LandfallConfig
 	public readonly IniConfigEntryNumber GyroSmoothingThreshold;
 	public readonly IniConfigEntryNumber GyroSmoothingTime;
 	public readonly IniConfigEntryBoolean GyroDisableWhenWalking;
-	public readonly IniConfigEntryNumber GyroLevelStartPauseLength;
 
 	public readonly IniConfigEntryNumber SticksDeadzones;
 	public readonly IniConfigEntryNumber SticksPowerCurve;
@@ -114,9 +113,6 @@ public class LandfallConfig
 		GyroDisableWhenWalking = gyroCategory.CreateEntry("DisableWhenWalking", false,
 			"Wether to disable gyro while slow walking."
 		);
-		GyroLevelStartPauseLength = gyroCategory.CreateEntry("LevelStartPauseLength", 0.2f,
-			"Amount of time to pause Gyro for at the start of each level. This prevents accidentally looking away."
-		);
 
 		SticksDeadzones = sticksCategory.CreateEntry("Deadzones", 0.125f,
 			"Increase deadzones if you experience stick drift. Decrease them for higher precision aiming, if your controller allows it."
@@ -198,7 +194,6 @@ public class LandfallConfig
 		config.GyroSmoothingThreshold = GyroSmoothingThreshold.ValueFloat;
 		config.GyroSmoothingTime = GyroSmoothingTime.ValueFloat;
 		config.GyroDisableWhenWalking = GyroDisableWhenWalking.Value;
-		config.GyroLevelStartPauseLength = GyroLevelStartPauseLength.ValueFloat;
 
 		config.SticksDeadzones = SticksDeadzones.ValueFloat;
 		config.SticksPowerCurve = SticksPowerCurve.ValueFloat;
