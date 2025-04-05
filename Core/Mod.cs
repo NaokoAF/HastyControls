@@ -1,16 +1,16 @@
-﻿using HastyControls.SDL3;
+﻿using HastyControls.Core.Settings;
+using HastyControls.SDL3;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.UI;
+using static HastyControls.Core.Settings.HastySettings;
 
 namespace HastyControls.Core;
 
 public static class Mod
 {
 	internal static ILogger Logger = new UnityDebugLogger();
-	internal static Config Config = new();
 	internal static HasteEvents Events = new();
-	internal static GyroPauser GyroPauser = new(Config, Events);
+	internal static GyroPauser GyroPauser = new(Events);
 	internal static SDLManager? SDL;
 	internal static ControllerManager? ControllerManager;
 	internal static HasteRumble? Rumble;
@@ -18,8 +18,8 @@ public static class Mod
 	public static void Initialize(SDL sdl)
 	{
 		SDL = new(sdl);
-		ControllerManager = new(SDL, Config);
-		Rumble = new(Events, ControllerManager, Config);
+		ControllerManager = new(SDL);
+		Rumble = new(Events, ControllerManager);
 
 		// add logging
 		SDL.ControllerAdded += controller => Logger.Msg($"Controller {controller.Id} added - {controller.Name} (Gyro: {controller.HasGyro})");
@@ -33,20 +33,16 @@ public static class Mod
 				Logger.Msg("No controller active!");
 		};
 
+		// update config
+		UpdateConfig();
+		GetSetting<GamepadDeadzonesSetting>().Applied += (_) => UpdateConfig();
+
 		// initialize SDL
 		Logger.Msg($"SDL {SDL.Version.Major}.{SDL.Version.Minor}.{SDL.Version.Micro} ({SDL.Revision})");
 		if (!SDL.Init())
 		{
 			Logger.Msg($"Failed to initialize SDL: {SDL.CurrentError}");
 		}
-	}
-
-	public static void UpdateConfig()
-	{
-		InputSystem.settings.defaultDeadzoneMin = Math.Clamp(Config.SticksDeadzones, 0.01f, 1f);
-		InputSystem.settings.defaultDeadzoneMax = 1f;
-
-		ControllerManager!.UpdateConfig(Config);
 	}
 
 	public static void Update()
@@ -60,5 +56,11 @@ public static class Mod
 	public static void Deinitialize()
 	{
 		SDL!.Quit();
+	}
+
+	static void UpdateConfig()
+	{
+		InputSystem.settings.defaultDeadzoneMin = GetSetting<GamepadDeadzonesSetting>().Value;
+		InputSystem.settings.defaultDeadzoneMax = 1f;
 	}
 }

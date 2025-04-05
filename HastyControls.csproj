@@ -20,9 +20,6 @@
 
 		<Platforms>AnyCPU;x64</Platforms>
 	</PropertyGroup>
-	<ItemGroup>
-	  <None Include="IniParser\IniParser.csproj" />
-	</ItemGroup>
 
 	<ItemGroup>
 		<Reference Include="Assembly-CSharp">
@@ -45,6 +42,9 @@
 		</Reference>
 		<Reference Include="Unity.Mathematics">
 			<HintPath>$(HasteDir)\Haste_Data\Managed\Unity.Mathematics.dll</HintPath>
+		</Reference>
+		<Reference Include="Unity.TextMeshPro">
+			<HintPath>$(HasteDir)\Haste_Data\Managed\Unity.TextMeshPro.dll</HintPath>
 		</Reference>
 		<Reference Include="Zorro.Core.Runtime">
 			<HintPath>$(HasteDir)\Haste_Data\Managed\Zorro.Core.Runtime.dll</HintPath>

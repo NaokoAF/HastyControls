@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static HastyControls.Core.Settings.HastySettings;
 
 namespace HastyControls.Core.Patches;
 
@@ -26,18 +27,15 @@ internal static class LookInputPatch
 				float newMag = Math.Clamp((mag - min) / (max - min), 0f, 1f);
 				// apply power curve
 				if (newMag > 0f)
-					newMag = MathF.Pow(newMag, Mod.Config.SticksPowerCurve);
+					newMag = MathF.Pow(newMag, GetSetting<GamepadPowerCurveSetting>().Value);
 
 				lookInput = lookInput / mag * newMag;
 			}
 
 			// get sensitivity
-			float gamepadSensitivity = Mod.Config.SticksDegreesPerSecond;
-			if (gamepadSensitivity == 0f)
-				gamepadSensitivity = (gamepadSensitivitySettingRef(character)?.Value ?? 1f) * 90f;
-
+			float gamepadSensitivity = (gamepadSensitivitySettingRef(character)?.Value ?? 1f) * 90f;
 			___lookInput = lookInput * gamepadSensitivity * Time.unscaledDeltaTime;
-			___lookInput.y *= Mod.Config.SticksSensitivityRatio;
+			___lookInput.y *= GetSetting<GamepadSensitivityRatioSetting>().Value;
 		}
 		else
 		{
@@ -45,15 +43,15 @@ internal static class LookInputPatch
 			___lookInput = lookInput * mouseSensitivity;
 		}
 
-		if (!Mod.Config.GyroEnabled || Mod.ControllerManager == null)
+		if (GetSetting<GyroSensitivitySetting>().Value == 0f || Mod.ControllerManager == null)
 			return;
 
 		// apply gyro
 		var gyro = Mod.ControllerManager.GyroDelta * Mathf.Rad2Deg;
 		(gyro.X, gyro.Y) = (gyro.Y, gyro.X); // swap axes
 
-		gyro *= Mod.Config.GyroSensitivity;
-		gyro.Y *= Mod.Config.GyroSensitivityRatio;
+		gyro *= GetSetting<GyroSensitivitySetting>().Value;
+		gyro.Y *= GetSetting<GyroSensitivityRatioSetting>().Value;
 		___lookInput.x -= gyro.X;
 		___lookInput.y -= gyro.Y;
 	}

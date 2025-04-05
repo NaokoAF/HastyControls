@@ -1,5 +1,6 @@
 ﻿using HastyControls.SDL3;
 using System.Numerics;
+using static HastyControls.Core.Settings.HastySettings;
 
 namespace HastyControls.Core;
 
@@ -15,15 +16,13 @@ public unsafe class ControllerManager
 	SDLController? activeController;
 	GyroState? activeControllerGyro;
 	SDLManager sdl;
-	Config config;
 	Vector2 gyroDelta;
 	bool gyroButtonState = true;
 	Dictionary<SDLController, GyroState> gyroStates = new();
 
-	public ControllerManager(SDLManager sdl, Config config)
+	public ControllerManager(SDLManager sdl)
 	{
 		this.sdl = sdl;
-		this.config = config;
 		sdl.ControllerAdded += Sdl_ControllerAdded;
 		sdl.ControllerRemoved += Sdl_ControllerRemoved;
 		sdl.ControllerButtonUpdated += Sdl_ControllerButtonUpdated;
@@ -32,14 +31,14 @@ public unsafe class ControllerManager
 
 	public void Update(float deltaTime)
 	{
-		int gyroButton = (int)config.GyroButton;
-		int gyroCalibrateButton = (int)config.GyroCalibrateButton;
+		int gyroButton = (int)GetSetting<GyroButtonSetting>().Value;
+		int gyroCalibrateButton = (int)GetSetting<GyroCalibrateButtonSetting>().Value;
 
 		// add up gyro on all controllers
 		gyroDelta = Vector2.Zero;
 		if (activeController != null && activeControllerGyro != null)
 		{
-			switch (config.GyroButtonMode)
+			switch (GetSetting<GyroButtonModeSetting>().Value)
 			{
 				case GyroButtonMode.Off: gyroButtonState = !activeController.GetButton(gyroButton); break;
 				case GyroButtonMode.On: gyroButtonState = activeController.GetButton(gyroButton); break;
@@ -59,15 +58,6 @@ public unsafe class ControllerManager
 		}
 	}
 
-	public void UpdateConfig(Config config)
-	{
-		this.config = config;
-		foreach (var gyro in gyroStates.Values)
-		{
-			gyro.UpdateConfig(config);
-		}
-	}
-
 	private void Sdl_ControllerAdded(SDLController controller)
 	{
 		if (controller.HasGyro)
@@ -75,8 +65,6 @@ public unsafe class ControllerManager
 			GyroState gyro = new();
 			gyro.BiasCalibrationTime = 1f; // calibrate once added
 			gyro.BiasCalibrated += bias => GyroBiasCalibrated?.Invoke(controller, bias);
-
-			gyro.UpdateConfig(config);
 			gyroStates.Add(controller, gyro);
 		}
 
@@ -115,7 +103,9 @@ public unsafe class ControllerManager
 		SetActiveController(controller);
 
 		// toggle gyro
-		if (down && button == config.GyroButton && config.GyroButtonMode == GyroButtonMode.Toggle)
+		var gyroButton = GetSetting<GyroButtonSetting>().Value;
+		var gyroButtonMode = GetSetting<GyroButtonModeSetting>().Value;
+		if (down && button == gyroButton && gyroButtonMode == GyroButtonMode.Toggle)
 		{
 			gyroButtonState = !gyroButtonState;
 		}
@@ -123,7 +113,7 @@ public unsafe class ControllerManager
 
 	private void Sdl_ControllerSensorUpdated(SDLController controller, SDL_SensorType sensor, Vector3 data, ulong timestamp)
 	{
-		if (!config.GyroEnabled) return; // skip for performance
+		if (GetSetting<GyroButtonSetting>().Value == 0) return; // skip for performance
 		if (activeController != controller || activeControllerGyro == null) return;
 
 		activeControllerGyro.Input(controller.Gyroscope, controller.Accelerometer, controller.GyroscopeTimestamp);

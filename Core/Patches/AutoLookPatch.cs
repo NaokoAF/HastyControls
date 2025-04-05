@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using UnityEngine;
+using static HastyControls.Core.Settings.HastySettings;
 
 namespace HastyControls.Core.Patches;
 
@@ -19,12 +20,10 @@ internal static class AutoLookPatch
 
 		if (data.movementType == MovementType.Fast)
 		{
-			if (Mod.Config.AutoLookHorEnabled)
+			float horizontalSpeed = GetSetting<AutoLookHorSpeedSetting>().Value;
+			float horizontalStrength = GetSetting<AutoLookHorStrengthSetting>().Value;
+			if (horizontalSpeed != 0f && horizontalStrength != 0f)
 			{
-				// config
-				float horizontalSpeed = Mod.Config.AutoLookHorSpeed;
-				float horizontalStrength = Mod.Config.AutoLookHorStrength;
-
 				// local-space point in front of player
 				Vector3 direction = refs.playerVisualRotation.visual.transform.InverseTransformPoint(refs.playerVisualRotation.visual.transform.position + data.lookDir);
 
@@ -40,13 +39,11 @@ internal static class AutoLookPatch
 				data.lookRotationValues.x += horizontalDelta;
 			}
 
-			if (Mod.Config.AutoLookVerEnabled)
+			float verticalSpeed = GetSetting<AutoLookVerSpeedSetting>().Value;
+			float verticalStrength = GetSetting<AutoLookVerStrengthSetting>().Value;
+			if (verticalSpeed != 0f && verticalStrength != 0f)
 			{
-				// config
-				float verticalSpeed = Mod.Config.AutoLookVerSpeed;
-				float verticalStrength = Mod.Config.AutoLookVerStrength;
-				float verticalBaseAngle = Mod.Config.AutoLookVerBaseAngle;
-
+				float verticalBaseAngle = GetSetting<AutoLookVerBaseAngleSetting>().Value;
 				// caculate angle based on velocity's vertical direction
 				float verticalTarget = (verticalBaseAngle * 20f) - (refs.rig.velocity.normalized.y * verticalStrength * 20f);
 

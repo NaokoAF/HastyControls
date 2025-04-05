@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using static HastyControls.Core.Settings.HastySettings;
 
 namespace HastyControls.Core.Patches;
 
@@ -9,7 +10,7 @@ internal static class DisableAbilitiesInSafeAreasPatch
 	[HarmonyPostfix]
 	static void SampleInputPostfix(PlayerCharacter character, ref bool ___abilityWasPressed, ref bool ___abilityIsPressed)
 	{
-		if (!Mod.Config.GeneralDisableAbilitiesInSafeZones)
+		if (!GetSetting<GeneralDisableAbilitiesInSafeZonesSetting>().Value)
 			return;
 
 		if (GM_Shop.instance != null || GM_Rest.instance != null)

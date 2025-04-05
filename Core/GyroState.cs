@@ -1,6 +1,7 @@
 ﻿using HastyControls.Core.Gyro;
 using HastyControls.Core.Gyro.GyroSpaces;
 using System.Numerics;
+using static HastyControls.Core.Settings.HastySettings;
 
 namespace HastyControls.Core;
 
@@ -13,31 +14,7 @@ class GyroState
 
 	JibbGravityCalculator gravityCalculator = new();
 	ulong? prevTimestamp;
-
-	public void UpdateConfig(Config config)
-	{
-		IGyroSpace gyroSpace;
-		switch (config.GyroSpace)
-		{
-			case GyroSpace.LocalYaw: gyroSpace = new LocalYawGyroSpace(); break;
-			case GyroSpace.LocalRoll: gyroSpace = new LocalRollGyroSpace(); break;
-			case GyroSpace.PlayerTurn: gyroSpace = new PlayerTurnGyroSpace(); break;
-			case GyroSpace.PlayerLean: gyroSpace = new PlayerLeanGyroSpace(); break;
-			default: gyroSpace = new LocalYawGyroSpace(); break;
-		}
-
-		Gyro.GyroSpace = gyroSpace;
-		Gyro.SmoothingThresholdDirect = config.GyroSmoothingThreshold;
-		Gyro.SmoothingThresholdSmooth = config.GyroSmoothingThreshold * 0.5f;
-		Gyro.SmoothingTime = config.GyroSmoothingTime;
-		Gyro.TighteningThreshold = config.GyroTightening;
-		Gyro.Acceleration.ThresholdSlow = 0f;
-		Gyro.Acceleration.ThresholdFast = 0f;
-		Gyro.Acceleration.SensitivitySlow = 1f;
-		Gyro.Acceleration.SensitivityFast = 1f;
-
-		prevTimestamp = null;
-	}
+	GyroSpace currentGyroSpace = GyroSpace.LocalYaw;
 
 	public void Input(Vector3 gyro, Vector3 accel, ulong timestamp)
 	{
@@ -58,8 +35,37 @@ class GyroState
 
 	public Vector2 Update(float deltaTime)
 	{
+		var gyroSpaceSetting = GetSetting<GyroSpaceSetting>().Value;
+		var gyroSmoothingThresholdSetting = GetSetting<GyroSmoothingThresholdSetting>().Value;
+		var gyroSmoothingTimeSetting = GetSetting<GyroSmoothingTimeSetting>().Value;
+		var gyroTighteningSetting = GetSetting<GyroTighteningSetting>().Value;
+
+		if (currentGyroSpace != gyroSpaceSetting)
+		{
+			Gyro.GyroSpace = CreateGyroSpace(gyroSpaceSetting);
+			currentGyroSpace = gyroSpaceSetting;
+		}
+
+		Gyro.SmoothingThresholdDirect = gyroSmoothingThresholdSetting;
+		Gyro.SmoothingThresholdSmooth = gyroSmoothingThresholdSetting * 0.5f;
+		Gyro.SmoothingTime = gyroSmoothingTimeSetting;
+		Gyro.TighteningThreshold = gyroTighteningSetting;
+		Gyro.Acceleration.ThresholdSlow = 0f;
+		Gyro.Acceleration.ThresholdFast = 0f;
+		Gyro.Acceleration.SensitivitySlow = 1f;
+		Gyro.Acceleration.SensitivityFast = 1f;
+
 		return Gyro.Update(deltaTime);
 	}
+
+	static IGyroSpace CreateGyroSpace(GyroSpace space) => space switch
+	{
+		GyroSpace.LocalYaw => new LocalYawGyroSpace(),
+		GyroSpace.LocalRoll => new LocalRollGyroSpace(),
+		GyroSpace.PlayerTurn => new PlayerTurnGyroSpace(),
+		GyroSpace.PlayerLean => new PlayerLeanGyroSpace(),
+		_ => new LocalYawGyroSpace(),
+	};
 
 	public void Flush()
 	{

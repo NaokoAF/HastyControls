@@ -1,21 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
+using static HastyControls.Core.Settings.HastySettings;
 
 namespace HastyControls.Core;
 
 public class GyroPauser
 {
-	Config config;
 	float gyroPauseTime;
 	bool gyroPauseOnce;
 
-	public GyroPauser(Config config, HasteEvents events)
+	public GyroPauser(HasteEvents events)
 	{
-		this.config = config;
-
 		// pause gyro at the start of a level to prevent looking at the floor on accident
 		SceneManager.activeSceneChanged += (_, _) => AddPauseTime();
 		GM_API.NewLevel += AddPauseTime;
@@ -40,12 +35,12 @@ public class GyroPauser
 		gyroPauseTime = 0f;
 
 		// pause if gyro is disabled or the window is unfocused
-		if (!config.GyroEnabled || !Application.isFocused)
+		if (GetSetting<GyroSensitivitySetting>().Value == 0f || !Application.isFocused)
 			return true;
 
 		// if GyroDisableWhenWalking is enabled, disable gyro when SlowMovement is active, but re-enable when charging up fast run
 		var player = PlayerCharacter.localPlayer;
-		if (config.GyroDisableWhenWalking && player != null && player.refs.slowMovement.enabled && !player.data.enteringFastRun)
+		if (GetSetting<GyroDisableWhenWalkingSetting>().Value && player != null && player.refs.slowMovement.enabled && !player.data.enteringFastRun)
 			return true;
 
 		return false;
