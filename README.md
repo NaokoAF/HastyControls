@@ -22,18 +22,18 @@ Put your controller down on a flat surface and hold down the calibration button 
 To avoid this next time, leave the controller down while launching the game. It calibrates automatically on every launch.
 
 ## Setting Descriptions
-* **Gyro Space:** Algorithm used to convert real world movements to the in game camera. Player space recommended for most cases, Local space recommended for handhelds. Turn and Lean depend on preference, so try both!
 * **Gamepad Power Curve:** Right stick power curve. Values above 1 squish motion closer to the center of the stick, values below 1 stretch them closer to the edge.
-* **Gyro/Gamepad Sensitivity Ratio:** Vertical sensitivity multiplier. 0.75 means vertical sensitivity is 75% slower than horizontal sensitivity.
+* **Gamepad/Gyro Sensitivity Ratio:** Vertical sensitivity multiplier. 0.75 means vertical sensitivity is 75% slower than horizontal sensitivity.
+* **AutoLook Settings:** Haste automatically moves your camera around to match your movement. You can play around with these or just set them to 0 to disable it.
+* **Gyro Space:** Algorithm used to convert real world movements to the in game camera. Player space recommended for most cases, Local for handhelds. Turn and Lean depend on preference, so try both!
 * **Gyro Button:** Controller button to enable/disable gyro. Check [this link](https://wiki.libsdl.org/SDL3/SDL_GamepadButton) for more detail on each option.
 * **Gyro Button Mode:** Behavior of gyro button. Off disables motion controls while the button is held, On enables them, Toggle switches between on and off on each press.
 * **Gyro Calibrate Button:** Button to correct gyro drift.
-* **Gyro Tightening:** Soft gyro deadzone to reduce the effects of shaky hands. Higher values can feel pretty bad
-* **Gyro Smoothing Threshold:** Gyro rotations below this speed are smoothed. Also helps reduce the effects of shaky hands.
-* **Gyro Smoothing Time:** How long to smooth for. Higher values add latency
-* **AutoLook:** The game automatically moves your camera around to match your movement. You can play around with these or just set them to 0
-* **Rumble Intensity:** Overall rumble intensity. 0 to disable rumble completely
-* **Other Rumble Settings:** Rumble intensity per game action. 0 to disable
+* **Gyro Tightening:** Soft gyro deadzone to reduce the effects of shaky hands. Values above 6 can start to feel bad.
+* **Gyro Smoothing Threshold:** Rotations below this speed are smoothed. Also helps reduce the effects of shaky hands.
+* **Gyro Smoothing Time:** How long to smooth for. Higher values add latency.
+* **Rumble Intensity:** Overall rumble intensity. 0 to disable rumble completely.
+* **Other Rumble Settings:** Rumble intensity per game action. 0 to disable.
 
 ## Why?
 I'm a big fan of Gyro Aiming, but Haste doesn't support Mixed Input, as in, using the left stick to move while using the mouse to look around. Mixed Input is a requirement to use Steam Input's Gyro to Mouse feature.
