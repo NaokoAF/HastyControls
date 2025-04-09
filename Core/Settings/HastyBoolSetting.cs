@@ -8,17 +8,15 @@ public abstract class HastyBoolSetting : BoolSetting, IExposedSetting, IEnumSett
 	public event Action<bool>? Applied;
 
 	string category;
-	string name;
 	bool defaultValue;
 	LocalizedString displayName;
 	List<string> choices;
 
-	public HastyBoolSetting(string category, string name, bool defaultValue, string offChoice = "Off", string onChoice = "On")
+	public HastyBoolSetting(string category, string name, string description, bool defaultValue, string offChoice = "Off", string onChoice = "On")
 	{
 		this.category = category;
-		this.name = name;
 		this.defaultValue = defaultValue;
-		displayName = new(ModInfo.Guid, name);
+		displayName = HastySettings.CreateDisplayName(name, description);
 		choices = [offChoice, onChoice];
 	}
 

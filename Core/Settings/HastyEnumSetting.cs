@@ -8,17 +8,15 @@ public abstract class HastyEnumSetting<T> : EnumSetting<T>, IEnumSetting, IExpos
 	public event Action<T>? Applied;
 
 	string category;
-	string name;
 	T defaultValue;
 	LocalizedString displayName;
 	List<string> choices;
 
-	public HastyEnumSetting(string category, string name, T defaultValue, IEnumerable<string>? choices = null)
+	public HastyEnumSetting(string category, string name, string description, T defaultValue, IEnumerable<string>? choices = null)
 	{
 		this.category = category;
-		this.name = name;
 		this.defaultValue = defaultValue;
-		displayName = new(ModInfo.Guid, name);
+		displayName = HastySettings.CreateDisplayName(name, description);
 		this.choices = choices != null ? new(choices) : new(Enum.GetNames(typeof(T)));
 	}
 
