@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using Landfall.Haste;
 using System.Runtime.CompilerServices;
 using UnityEngine.Localization;
 using Zorro.Settings;
@@ -81,7 +82,7 @@ public static class HastySettings
 
 	static void AddCategory(string key, string name)
 	{
-		SettingsUIPage.LocalizedTitles.Add(key, new(ModInfo.Guid, name));
+		SettingsUIPage.LocalizedTitles.Add(key, new UnlocalizedString(name));
 	}
 
 	static void Add<T>() where T : Setting, new()
@@ -95,7 +96,7 @@ public static class HastySettings
 
 	internal static LocalizedString CreateDisplayName(string name, string description)
 	{
-		return new(ModInfo.Guid, $"{name}\n<size=60%><alpha=#50>{description}");
+		return new UnlocalizedString($"{name}\n<size=60%><alpha=#50>{description}");
 	}
 
 	static class SettingsStorage<T> where T : Setting, new()
