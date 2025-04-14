@@ -46,7 +46,6 @@ public static class HastySettings
 
 	public static void Initialize()
 	{
-		AddCategory(Category, $"<size=65%>{Category}");
 		Add<GeneralDisableAbilitiesInSafeZonesSetting>();
 		Add<GamepadSensitivityRatioSetting>();
 		Add<GamepadPowerCurveSetting>();
