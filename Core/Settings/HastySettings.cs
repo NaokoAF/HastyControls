@@ -12,6 +12,12 @@ public static class HastySettings
 	static readonly IEnumerable<string> GyroSpaceChoices = ["Local Yaw (Handhelds)", "Local Roll (Handhelds)", "Player Turn (Recommended)", "Player Lean (Recommended)"];
 	static readonly IEnumerable<string> GyroButtonModeChoices = ["Disable Gyro while held", "Enable Gyro while held", "Toggle Gyro when pressed"];
 
+	public class GeneralCollapsibleSetting() : HastyCollapsibleSetting(Category, "General Settings", "");
+	public class GamepadCollapsibleSetting() : HastyCollapsibleSetting(Category, "Gamepad Settings", "");
+	public class GyroCollapsibleSetting() : HastyCollapsibleSetting(Category, "Gyro Settings", "");
+	public class AutoLookCollapsibleSetting() : HastyCollapsibleSetting(Category, "AutoLook Settings", "");
+	public class RumbleCollapsibleSetting() : HastyCollapsibleSetting(Category, "Rumble Settings", "");
+
 	public class GeneralDisableAbilitiesInSafeZonesSetting() : HastyBoolSetting(Category, "Disable Abilities in Safe Zones", "Prevent accidental usage of abilities in the shop and healing areas.", true);
 	public class GamepadSensitivityRatioSetting() : HastyFloatSetting(Category, "Gamepad Sensitivity Ratio", "Vertical sensitivity multiplier. 0.75 means vertical sensitivity is 75% slower than horizontal.", 0f, 5f, 1f);
 	public class GamepadPowerCurveSetting() : HastyFloatSetting(Category, "Gamepad Power Curve", "Right stick power curve. Values above 1 squish motion closer to the center of the stick, values below 1 stretch them closer to the edge.", 0.01f, 5f, 1f);
@@ -43,38 +49,49 @@ public static class HastySettings
 
 	static AccessTools.FieldRef<HasteSettingsHandler, List<Setting>> settingsRef = AccessTools.FieldRefAccess<HasteSettingsHandler, List<Setting>>("settings");
 	static AccessTools.FieldRef<HasteSettingsHandler, ISettingsSaveLoad> settingsSaveLoadRef = AccessTools.FieldRefAccess<HasteSettingsHandler, ISettingsSaveLoad>("_settingsSaveLoad");
+	static List<IHastySetting> hastySettings = new();
 
 	public static void Initialize()
 	{
-		Add<GeneralDisableAbilitiesInSafeZonesSetting>();
-		Add<GamepadSensitivityRatioSetting>();
-		Add<GamepadPowerCurveSetting>();
-		Add<GamepadDeadzonesSetting>();
-		Add<GyroSensitivitySetting>();
-		Add<GyroSensitivityRatioSetting>();
-		Add<GyroDisableWhenWalkingSetting>();
-		Add<GyroSpaceSetting>();
-		Add<GyroButtonSetting>();
-		Add<GyroButtonModeSetting>();
-		Add<GyroCalibrateButtonSetting>();
-		Add<GyroTighteningSetting>();
-		Add<GyroSmoothingThresholdSetting>();
-		Add<GyroSmoothingTimeSetting>();
-		Add<AutoLookHorSpeedSetting>();
-		Add<AutoLookHorStrengthSetting>();
-		Add<AutoLookVerSpeedSetting>();
-		Add<AutoLookVerStrengthSetting>();
-		Add<AutoLookVerBaseAngleSetting>();
-		Add<RumbleIntensitySetting>();
-		Add<RumbleOnDamageSetting>();
-		Add<RumbleOnLandSetting>();
-		Add<RumbleOnFastRunSetting>();
-		Add<RumbleOnSparkPickupSetting>();
-		Add<RumbleOnBoostRingSetting>();
-		Add<RumbleOnBoardBoostSetting>();
-		Add<RumbleOnGrappleSetting>();
-		Add<RumbleOnFlySetting>();
+		var general = Add<GeneralCollapsibleSetting>();
+		Add<GeneralDisableAbilitiesInSafeZonesSetting>(general);
+
+		var gamepad = Add<GamepadCollapsibleSetting>();
+		Add<GamepadSensitivityRatioSetting>(gamepad);
+		Add<GamepadPowerCurveSetting>(gamepad);
+		Add<GamepadDeadzonesSetting>(gamepad);
+
+		var gyro = Add<GyroCollapsibleSetting>();
+		Add<GyroSensitivitySetting>(gyro);
+		Add<GyroSensitivityRatioSetting>(gyro);
+		Add<GyroDisableWhenWalkingSetting>(gyro);
+		Add<GyroSpaceSetting>(gyro);
+		Add<GyroButtonSetting>(gyro);
+		Add<GyroButtonModeSetting>(gyro);
+		Add<GyroCalibrateButtonSetting>(gyro);
+		Add<GyroTighteningSetting>(gyro);
+		Add<GyroSmoothingThresholdSetting>(gyro);
+		Add<GyroSmoothingTimeSetting>(gyro);
+
+		var autolook = Add<AutoLookCollapsibleSetting>();
+		Add<AutoLookHorSpeedSetting>(autolook);
+		Add<AutoLookHorStrengthSetting>(autolook);
+		Add<AutoLookVerSpeedSetting>(autolook);
+		Add<AutoLookVerStrengthSetting>(autolook);
+		Add<AutoLookVerBaseAngleSetting>(autolook);
+
+		var rumble = Add<RumbleCollapsibleSetting>();
+		Add<RumbleIntensitySetting>(rumble);
+		Add<RumbleOnDamageSetting>(rumble);
+		Add<RumbleOnLandSetting>(rumble);
+		Add<RumbleOnFastRunSetting>(rumble);
+		Add<RumbleOnSparkPickupSetting>(rumble);
+		Add<RumbleOnBoostRingSetting>(rumble);
+		Add<RumbleOnBoardBoostSetting>(rumble);
+		Add<RumbleOnGrappleSetting>(rumble);
+		Add<RumbleOnFlySetting>(rumble);
 	}
+
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static T GetSetting<T>() where T : Setting, new() => SettingsStorage<T>.Setting;
@@ -84,13 +101,22 @@ public static class HastySettings
 		SettingsUIPage.LocalizedTitles.Add(key, new UnlocalizedString(name));
 	}
 
-	static void Add<T>() where T : Setting, new()
+	static T Add<T>(HastyCollapsibleSetting? collapsibleCategory = null) where T : Setting, IHastySetting, new()
 	{
 		var setting = SettingsStorage<T>.Setting;
+		hastySettings.Add(setting);
+
+		// if a collapsible is provided, only show the setting if it isn't collapsed, and the collapsible setting is also visible
+		if (collapsibleCategory != null)
+		{
+			setting.ShowCondition = () => !collapsibleCategory.Collapsed && (collapsibleCategory.ShowCondition?.Invoke() ?? true);
+		}
+
 		var handler = GameHandler.Instance.SettingsHandler;
 		settingsRef(handler).Add(setting);
 		setting.Load(settingsSaveLoadRef(handler));
 		setting.ApplyValue();
+		return setting;
 	}
 
 	internal static LocalizedString CreateDisplayName(string name, string description)

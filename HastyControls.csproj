@@ -34,6 +34,12 @@
 		<Reference Include="UnityEngine.PhysicsModule">
 			<HintPath>$(HasteDir)\Haste_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
 		</Reference>
+		<Reference Include="UnityEngine.UI">
+			<HintPath>$(HasteDir)\Haste_Data\Managed\UnityEngine.UI.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.UIModule">
+			<HintPath>$(HasteDir)\Haste_Data\Managed\UnityEngine.UIModule.dll</HintPath>
+		</Reference>
 		<Reference Include="Unity.Localization">
 			<HintPath>$(HasteDir)\Haste_Data\Managed\Unity.Localization.dll</HintPath>
 		</Reference>

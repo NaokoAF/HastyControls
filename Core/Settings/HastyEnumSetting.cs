@@ -3,9 +3,10 @@ using Zorro.Settings;
 
 namespace HastyControls.Core.Settings;
 
-public abstract class HastyEnumSetting<T> : EnumSetting<T>, IEnumSetting, IExposedSetting where T : unmanaged, Enum
+public abstract class HastyEnumSetting<T> : EnumSetting<T>, IHastySetting, IEnumSetting, IExposedSetting where T : unmanaged, Enum
 {
 	public event Action<T>? Applied;
+	public Func<bool>? ShowCondition { get; set; }
 
 	string category;
 	T defaultValue;

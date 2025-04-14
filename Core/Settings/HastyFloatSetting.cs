@@ -4,9 +4,10 @@ using Zorro.Settings;
 
 namespace HastyControls.Core.Settings;
 
-public abstract class HastyFloatSetting : FloatSetting, IExposedSetting
+public abstract class HastyFloatSetting : FloatSetting, IHastySetting, IExposedSetting
 {
 	public event Action<float>? Applied;
+	public Func<bool>? ShowCondition { get; set; }
 
 	string category;
 	float defaultValue;
