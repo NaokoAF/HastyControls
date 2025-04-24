@@ -1,0 +1,3 @@
+[submodule "GyroHelpers"]
+	path = GyroHelpers
+	url = https://github.com/naokoaf/GyroHelpers

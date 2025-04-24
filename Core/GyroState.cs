@@ -1,5 +1,5 @@
-﻿using HastyControls.Core.Gyro;
-using HastyControls.Core.Gyro.GyroSpaces;
+﻿using GyroHelpers;
+using GyroHelpers.GyroSpaces;
 using System.Numerics;
 using static HastyControls.Core.Settings.HastySettings;
 
@@ -7,34 +7,24 @@ namespace HastyControls.Core;
 
 class GyroState
 {
-	public GyroAiming Gyro { get; } = new();
+	public GyroInput GyroInput { get; } = new();
+	public GyroProcessor GyroProcessor { get; } = new();
 	public float BiasCalibrationTime { get; set; }
 
 	public event Action<Vector3>? BiasCalibrated;
 
-	JibbGravityCalculator gravityCalculator = new();
-	ulong? prevTimestamp;
 	GyroSpace currentGyroSpace = GyroSpace.LocalYaw;
-
-	public void Input(Vector3 gyro, Vector3 accel, ulong timestamp)
-	{
-		float deltaTime = (timestamp - (prevTimestamp ?? timestamp)) / 1000000000f;
-		prevTimestamp = timestamp;
-
-		if (BiasCalibrationTime > 0)
-		{
-			BiasCalibrationTime -= deltaTime;
-			Gyro.CalibratingBias = BiasCalibrationTime > 0;
-			if (BiasCalibrationTime <= 0)
-				BiasCalibrated?.Invoke(Gyro.Bias);
-		}
-
-		Vector3 gravity = Gyro.GyroSpace.RequiresGravity ? gravityCalculator.Update(gyro, accel, deltaTime) : Vector3.Zero;
-		Gyro.Input(gyro, accel, gravity, deltaTime);
-	}
 
 	public Vector2 Update(float deltaTime)
 	{
+		if (BiasCalibrationTime > 0)
+		{
+			BiasCalibrationTime -= deltaTime;
+			GyroInput.Calibrating = BiasCalibrationTime > 0;
+			if (BiasCalibrationTime <= 0)
+				BiasCalibrated?.Invoke(GyroInput.Bias);
+		}
+
 		var gyroSpaceSetting = GetSetting<GyroSpaceSetting>().Value;
 		var gyroSmoothingThresholdSetting = GetSetting<GyroSmoothingThresholdSetting>().Value;
 		var gyroSmoothingTimeSetting = GetSetting<GyroSmoothingTimeSetting>().Value;
@@ -42,33 +32,33 @@ class GyroState
 
 		if (currentGyroSpace != gyroSpaceSetting)
 		{
-			Gyro.GyroSpace = CreateGyroSpace(gyroSpaceSetting);
+			GyroProcessor.GyroSpace = CreateGyroSpace(gyroSpaceSetting);
 			currentGyroSpace = gyroSpaceSetting;
 		}
 
-		Gyro.SmoothingThresholdDirect = gyroSmoothingThresholdSetting;
-		Gyro.SmoothingThresholdSmooth = gyroSmoothingThresholdSetting * 0.5f;
-		Gyro.SmoothingTime = gyroSmoothingTimeSetting;
-		Gyro.TighteningThreshold = gyroTighteningSetting;
-		Gyro.Acceleration.ThresholdSlow = 0f;
-		Gyro.Acceleration.ThresholdFast = 0f;
-		Gyro.Acceleration.SensitivitySlow = 1f;
-		Gyro.Acceleration.SensitivityFast = 1f;
+		GyroProcessor.SmoothingThresholdDirect = gyroSmoothingThresholdSetting * MathHelper.DegreesToRadians;
+		GyroProcessor.SmoothingThresholdSmooth = gyroSmoothingThresholdSetting * MathHelper.DegreesToRadians * 0.5f;
+		GyroProcessor.SmoothingTime = gyroSmoothingTimeSetting;
+		GyroProcessor.TighteningThreshold = gyroTighteningSetting * MathHelper.DegreesToRadians;
+		GyroProcessor.Acceleration.ThresholdSlow = 0f;
+		GyroProcessor.Acceleration.ThresholdFast = 0f;
+		GyroProcessor.Acceleration.SensitivitySlow = 1f;
+		GyroProcessor.Acceleration.SensitivityFast = 1f;
 
-		return Gyro.Update(deltaTime);
+		return GyroProcessor.Update(GyroInput.Gyro, deltaTime);
 	}
 
 	static IGyroSpace CreateGyroSpace(GyroSpace space) => space switch
 	{
-		GyroSpace.LocalYaw => new LocalYawGyroSpace(),
-		GyroSpace.LocalRoll => new LocalRollGyroSpace(),
+		GyroSpace.LocalYaw => new LocalGyroSpace(),
+		GyroSpace.LocalRoll => new LocalGyroSpace(GyroAxis.Pitch, GyroAxis.Roll),
 		GyroSpace.PlayerTurn => new PlayerTurnGyroSpace(),
 		GyroSpace.PlayerLean => new PlayerLeanGyroSpace(),
-		_ => new LocalYawGyroSpace(),
+		_ => new LocalGyroSpace(),
 	};
 
-	public void Flush()
+	public void Reset()
 	{
-		Gyro.Flush();
+		GyroProcessor.Reset();
 	}
 }
