@@ -121,7 +121,7 @@ public unsafe class ControllerManager
 
 	private void Sdl_ControllerSensorUpdated(SDLController controller, SDL_SensorType sensor, Vector3 data, ulong timestamp)
 	{
-		if (GetSetting<GyroButtonSetting>().Value == 0) return; // skip for performance
+		if (GetSetting<GyroSensitivitySetting>().Value == 0) return; // skip for performance
 		if (activeController != controller || activeControllerGyro == null) return;
 
 		switch (sensor)
