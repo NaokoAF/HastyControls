@@ -18,8 +18,6 @@ public class HasteEvents
 	public Action? PlayerSlowMoAbilityFinished;
 	public Action<EffectSource, int>? PlayerResourceReceived;
 	public Action? PlayerSparkPickedUp;
-	public Action<int>? PlayerItemAdded;
-	public Action? PlayerItemRemoved;
 	public Action<float>? PlayerHealthChanged;
 	public Action<float>? PlayerEnergyChanged;
 	public Action<float>? PlayerBoostRingPassed;

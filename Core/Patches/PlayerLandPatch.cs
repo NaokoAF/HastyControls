@@ -9,6 +9,6 @@ internal static class PlayerLandPatch
 	[HarmonyPostfix]
 	static void StartPostfix(PlayerMovement __instance)
 	{
-		__instance.landAction += (type, unknown) => Mod.Events.PlayerLanded?.Invoke(type, unknown);
+		__instance.landAction += (character, type, unknown) => Mod.Events.PlayerLanded?.Invoke(type, unknown);
 	}
 }

@@ -12,18 +12,6 @@ internal static class PlayerEventsPatch
 		__instance.takeDamageAction += (damage, source, effect) => Mod.Events.PlayerDamaged?.Invoke(damage, source, effect);
 		__instance.pickUpCoinAction += () => Mod.Events.PlayerSparkPickedUp?.Invoke();
 		__instance.HealthChangedAction += (health) => Mod.Events.PlayerHealthChanged?.Invoke(health);
-
-		__instance.itemsChangedAction += (index) =>
-		{
-			if (index >= 0)
-			{
-				Mod.Events.PlayerItemAdded?.Invoke(index);
-			}
-			else
-			{
-				Mod.Events.PlayerItemRemoved?.Invoke();
-			}
-		};
 	}
 
 	[HarmonyPatch("AddResource")]
