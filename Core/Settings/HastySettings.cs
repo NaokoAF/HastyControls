@@ -11,7 +11,7 @@ namespace HastyControls.Core.Settings;
 public static class HastySettings
 {
 	const string Category = ModInfo.Name;
-	static readonly IEnumerable<string> GyroSpaceChoices = ["Local Yaw (Handhelds)", "Local Roll (Handhelds)", "Player Turn (Recommended)", "Player Lean (Recommended)"];
+	static readonly IEnumerable<string> GyroSpaceChoices = ["Local Yaw", "Local Roll", "Player Turn", "Player Lean"];
 	static readonly IEnumerable<string> GyroButtonModeChoices = ["Disable Gyro while held", "Enable Gyro while held", "Toggle Gyro when pressed"];
 
 	public class GeneralCollapsibleSetting() : HastyCollapsibleSetting(Category, "General Settings", "");
