@@ -5,7 +5,7 @@ using static HastyControls.Core.Settings.HastySettings;
 namespace HastyControls.Core.Patches;
 
 [HarmonyPatch(typeof(PlayerCharacter), "SetLook")]
-internal static class AutoLookPatch
+internal static class PlayerLookPatch
 {
 	[HarmonyPrefix]
 	static bool Prefix(PlayerCharacter __instance)
