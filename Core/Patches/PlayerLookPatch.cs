@@ -1,4 +1,6 @@
 ﻿using HarmonyLib;
+using HastyControls.Core.Settings;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using static HastyControls.Core.Settings.HastySettings;
 
@@ -13,11 +15,30 @@ internal static class PlayerLookPatch
 		if (!HasteInputSystem.CanTakeInput())
 			return false;
 
-		var data = __instance.data;
-		var input = __instance.input;
-		var refs = __instance.refs;
-		var config = __instance.config;
+		// alter rotation
+		DoAutoLook(__instance);
+		DoGyroReset(__instance);
 
+		// rotate camera and clamp
+		var data = __instance.data;
+		data.lookRotationValues.x += __instance.input.lookInput.x;
+		data.lookRotationValues.y += __instance.input.lookInput.y;
+		data.lookRotationValues.y = Mathf.Clamp(data.lookRotationValues.y, -80f, 80f);
+
+		// set helper values
+		data.lookRotationEulerAngles = new Vector3(data.lookRotationValues.y, data.lookRotationValues.x, 0f);
+		data.lookDir = Quaternion.Euler(data.lookRotationEulerAngles) * Vector3.forward;
+		return false;
+	}
+
+	static void DoAutoLook(PlayerCharacter character)
+	{
+		var data = character.data;
+		var input = character.input;
+		var refs = character.refs;
+		var config = character.config;
+
+		// auto look
 		if (data.movementType == MovementType.Fast)
 		{
 			float horizontalSpeed = GetSetting<AutoLookHorSpeedSetting>().Value;
@@ -55,15 +76,59 @@ internal static class PlayerLookPatch
 				data.lookRotationValues.y = Mathf.Lerp(data.lookRotationValues.y, verticalTarget, Time.deltaTime * verticalSpeed);
 			}
 		}
+	}
 
-		// rotate camera and clamp
-		data.lookRotationValues.x += input.lookInput.x;
-		data.lookRotationValues.y += input.lookInput.y;
-		data.lookRotationValues.y = Mathf.Clamp(data.lookRotationValues.y, -80f, 80f);
+	static float gyroResetT;
+	static Vector2 gyroResetAngle;
+	static Vector2 gyroResetPrevAngle;
 
-		// set helper values
-		data.lookRotationEulerAngles = new Vector3(data.lookRotationValues.y, data.lookRotationValues.x, 0f);
-		data.lookDir = Quaternion.Euler(data.lookRotationEulerAngles) * Vector3.forward;
-		return false;
+	static void DoGyroReset(PlayerCharacter character)
+	{
+		GyroButtonMode mode = GetSetting<GyroButtonModeSetting>().Value;
+		if (mode != GyroButtonMode.Recenter && mode != GyroButtonMode.RecenterAndOff)
+			return;
+
+		var data = character.data;
+
+		// activate
+		if (HastySettings.GyroButtonAction?.WasPressedThisFrame() ?? false)
+		{
+			gyroResetT = 1f;
+			gyroResetPrevAngle = Vector2.zero;
+
+			// reset vertically
+			gyroResetAngle.y = 15f - data.lookRotationValues.y;
+
+			// look towards velocity
+			if (data.velocityMagnitude > 0.1f)
+			{
+				float horAngle = Mathf.Atan2(data.velocity.x, data.velocity.z) * Mathf.Rad2Deg;
+				gyroResetAngle.x = Mathf.DeltaAngle(data.lookRotationValues.x, horAngle);
+			}
+			else
+			{
+				gyroResetAngle.x = 0f;
+			}
+		}
+
+		// animate
+		if (gyroResetT > 0f)
+		{
+			gyroResetT -= Time.deltaTime / 0.2f;
+			gyroResetT = Math.Max(gyroResetT, 0f);
+
+			Vector2 angle = gyroResetAngle * EaseOutCubic(1f - gyroResetT);
+			Vector2 angleDelta = angle - gyroResetPrevAngle;
+			gyroResetPrevAngle = angle;
+
+			data.lookRotationValues += angleDelta;
+		}
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	static float EaseOutCubic(float t)
+	{
+		t -= 1f;
+		return 1 + t * t * t;
 	}
 }

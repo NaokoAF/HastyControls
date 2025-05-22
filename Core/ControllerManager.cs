@@ -41,6 +41,7 @@ public unsafe class ControllerManager
 		switch (GyroButtonMode)
 		{
 			case GyroButtonMode.Off:
+			case GyroButtonMode.RecenterAndOff:
 				gyroButtonState = !GyroButtonDown;
 				break;
 			case GyroButtonMode.On:
