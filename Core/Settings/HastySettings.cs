@@ -28,9 +28,7 @@ public static class HastySettings
 	public class GyroSensitivityRatioSetting() : HastyFloatSetting(Category, "Gyro Sensitivity Ratio", "Vertical sensitivity multiplier. 0.75 means vertical sensitivity is 75% slower than horizontal.", 0f, 5f, 0.75f);
 	public class GyroDisableWhenWalkingSetting() : HastyBoolSetting(Category, "Gyro Disable when Walking", "Disable gyro while slow walking.", false);
 	public class GyroSpaceSetting() : HastyEnumSetting<GyroSpace>(Category, "Gyro Space", "Algorithm used to convert real world movements to the in game camera.", GyroSpace.PlayerTurn, GyroSpaceChoices);
-	public class GyroButtonSetting() : HastyEnumSetting<ControllerButton>(Category, "Gyro Button", "Controller button to enable/disable gyro.", ControllerButton.RightStick);
 	public class GyroButtonModeSetting() : HastyEnumSetting<GyroButtonMode>(Category, "Gyro Button Mode", "Behavior of gyro button.", GyroButtonMode.Off, GyroButtonModeChoices);
-	public class GyroCalibrateButtonSetting() : HastyEnumSetting<ControllerButton>(Category, "Gyro Calibrate Button", "Button to correct gyro drift.", ControllerButton.Touchpad);
 	public class GyroTighteningSetting() : HastyFloatSetting(Category, "Gyro Tightening", "Soft gyro deadzone to reduce the effects of shaky hands.", 0f, 15f, 3f);
 	public class GyroSmoothingThresholdSetting() : HastyFloatSetting(Category, "Gyro Smoothing Threshold", "Threshold below which gyro rotations are smoothed.", 0f, 300f, 35f);
 	public class GyroSmoothingTimeSetting() : HastyFloatSetting(Category, "Gyro Smoothing Time", "Amount of time gyro is smoothed for.", 0f, 0.5f, 0.1f);
@@ -74,9 +72,7 @@ public static class HastySettings
 		Add<GyroSensitivityRatioSetting>(gyro);
 		Add<GyroDisableWhenWalkingSetting>(gyro);
 		Add<GyroSpaceSetting>(gyro);
-		Add<GyroButtonSetting>(gyro);
 		Add<GyroButtonModeSetting>(gyro);
-		Add<GyroCalibrateButtonSetting>(gyro);
 		Add<GyroTighteningSetting>(gyro);
 		Add<GyroSmoothingThresholdSetting>(gyro);
 		Add<GyroSmoothingTimeSetting>(gyro);
