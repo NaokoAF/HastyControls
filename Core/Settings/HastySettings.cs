@@ -35,7 +35,7 @@ public static class HastySettings
 	public class AutoLookHorSpeedSetting() : HastyFloatSetting(Category, "AutoLook Horizontal Speed", "How fast the camera faces the direction of the left stick.", 0f, 10f, 1f);
 	public class AutoLookHorStrengthSetting() : HastyFloatSetting(Category, "AutoLook Horizontal Strength", "How strongly the camera faces the direction of the left stick.", 0f, 10f, 1f);
 	public class AutoLookVerSpeedSetting() : HastyFloatSetting(Category, "AutoLook Vertical Speed", "How fast the camera follows your vertical velocity.", 0f, 10f, 1f);
-	public class AutoLookVerStrengthSetting() : HastyFloatSetting(Category, "AutoLook Vertical Strength", "How strongly the camera follows your vertical velocity.", 0f, 10f, 1f);
+	public class AutoLookVerStrengthSetting() : HastyFloatSetting(Category, "AutoLook Vertical Strength", "How strongly the camera follows your vertical velocity.", 0f, 10f, 0f);
 	public class AutoLookVerBaseAngleSetting() : HastyFloatSetting(Category, "AutoLook Vertical Base Angle", "Default vertical angle while touching the ground. Higher values tilt the camera downward.", -5f, 5f, 1f);
 	public class RumbleIntensitySetting() : HastyFloatSetting(Category, "Rumble Intensity", "Overall rumble intensity. 0 to disable rumble completely.", 0f, 5f, 1f);
 	public class RumbleOnDamageSetting() : HastyFloatSetting(Category, "Rumble on Damage Intensity", "Rumble intensity when taking damage.", 0f, 5f, 1f);
