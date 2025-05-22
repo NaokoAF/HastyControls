@@ -1,7 +1,9 @@
-﻿using HarmonyLib;
-using Landfall.Haste;
+﻿using Landfall.Haste;
 using System.Runtime.CompilerServices;
+using UnityEngine.InputSystem;
 using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
+using Zorro.ControllerSupport;
 using Zorro.Settings;
 
 namespace HastyControls.Core.Settings;
@@ -47,12 +49,18 @@ public static class HastySettings
 	public class RumbleOnGrappleSetting() : HastyFloatSetting(Category, "Rumble on Grapple Intensity", "Rumble intensity when activating the grappling hook (Heir's Javelin).", 0f, 5f, 1f);
 	public class RumbleOnFlySetting() : HastyFloatSetting(Category, "Rumble on Poncho Intensity", "Rumble intensity when activating the poncho (Sage's Cowl).", 0f, 5f, 1f);
 
-	static AccessTools.FieldRef<HasteSettingsHandler, List<Setting>> settingsRef = AccessTools.FieldRefAccess<HasteSettingsHandler, List<Setting>>("settings");
-	static AccessTools.FieldRef<HasteSettingsHandler, ISettingsSaveLoad> settingsSaveLoadRef = AccessTools.FieldRefAccess<HasteSettingsHandler, ISettingsSaveLoad>("_settingsSaveLoad");
 	static List<IHastySetting> hastySettings = new();
+
+	public static InputAction? GyroButtonAction;
+	public static InputAction? GyroCalibrateAction;
 
 	public static void Initialize()
 	{
+		// bindings
+		GyroButtonAction = AddInputAction("3301647b-49b9-44eb-8bec-5d0dce7fda60", "Gyro Modifier Button", "<GamePad>/rightStickPress");
+		GyroCalibrateAction = AddInputAction("12181a04-3618-4741-acbe-c2016ca52bdc", "Gyro Calibrate Button", "<DualShockGamepad>/touchpadButton");
+
+		// settings
 		var general = Add<GeneralCollapsibleSetting>();
 		Add<GeneralDisableAbilitiesInSafeZonesSetting>(general);
 
@@ -96,11 +104,6 @@ public static class HastySettings
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static T GetSetting<T>() where T : Setting, new() => SettingsStorage<T>.Setting;
 
-	static void AddCategory(string key, string name)
-	{
-		SettingsUIPage.LocalizedTitles.Add(key, new UnlocalizedString(name));
-	}
-
 	static T Add<T>(HastyCollapsibleSetting? collapsibleCategory = null) where T : Setting, IHastySetting, new()
 	{
 		var setting = SettingsStorage<T>.Setting;
@@ -112,11 +115,54 @@ public static class HastySettings
 			setting.ShowCondition = () => !collapsibleCategory.Collapsed && (collapsibleCategory.ShowCondition?.Invoke() ?? true);
 		}
 
-		var handler = GameHandler.Instance.SettingsHandler;
-		settingsRef(handler).Add(setting);
-		setting.Load(settingsSaveLoadRef(handler));
-		setting.ApplyValue();
+		GameHandler.Instance.SettingsHandler.AddSetting(setting);
 		return setting;
+	}
+
+	// based on https://github.com/netux/haste-LookBehind/blob/main/Utils.cs
+	static InputAction AddInputAction(string id, string localizedName, string? path)
+	{
+		string name = $"{ModInfo.Guid}.{id}"; // generate unique name
+
+		var defaultActionMap = InputHandler.Instance.Default;
+
+		// check if the action name isnt in use
+		if (defaultActionMap.FindAction(name) != null)
+			throw new InvalidOperationException($"Input action {name} already exists.");
+
+		// all actions must be disabled before adding a new one
+		foreach (var actionMap in defaultActionMap.asset.actionMaps)
+		{
+			actionMap.Disable();
+		}
+		defaultActionMap.Disable();
+
+		// add action and binding
+		var action = defaultActionMap.AddAction(name);
+		if (path != null)
+		{
+			action.AddBinding(new InputBinding()
+			{
+				id = new Guid(id),
+				path = path,
+				groups = ";Gamepad",
+				interactions = "hold(duration=0)",
+			});
+		}
+
+		// reenable actions
+		foreach (var actionMap in defaultActionMap.asset.actionMaps)
+		{
+			actionMap.Enable();
+		}
+		defaultActionMap.Enable();
+
+		// add localization for action name
+		LocalizationSettings.StringDatabase.GetTable("Settings").AddEntry(name, localizedName);
+
+		// add to settings list
+		GameHandler.Instance.SettingsHandler.AddSetting(new InputRebindSetting(action));
+		return action;
 	}
 
 	internal static LocalizedString CreateDisplayName(string name, string description)

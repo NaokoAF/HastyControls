@@ -2,7 +2,6 @@
 using HastyControls.SDL3;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using static HastyControls.Core.Settings.HastySettings;
 
 namespace HastyControls.Core;
 
@@ -13,29 +12,21 @@ public static class Mod
 	internal static GyroPauser GyroPauser = new(Events);
 	internal static SDLManager? SDL;
 	internal static ControllerManager? ControllerManager;
-	internal static HasteRumble? Rumble;
+	internal static HasteRumble Rumble = new(Events);
 
 	public static void Initialize(SDL sdl)
 	{
 		SDL = new(sdl);
 		ControllerManager = new(SDL);
-		Rumble = new(Events, ControllerManager);
 
 		// add logging
 		SDL.ControllerAdded += controller => Logger.Msg($"Controller {controller.Id} added - {controller.Name} (Gyro: {controller.HasGyro})");
 		SDL.ControllerRemoved += controller => Logger.Msg($"Controller {controller.Id} removed - {controller.Name}");
 		ControllerManager.GyroBiasCalibrated += (controller, bias) => Logger.Msg($"Controller {controller.Id} calibrated - {controller.Name} (Bias: {bias})");
-		ControllerManager.ActiveControllerChanged += controller =>
-		{
-			if (controller != null)
-				Logger.Msg($"Set active controller to {controller.Id} - {controller.Name}");
-			else
-				Logger.Msg("No controller active!");
-		};
 
 		// update config
 		UpdateConfig();
-		GetSetting<GamepadDeadzonesSetting>().Applied += (_) => UpdateConfig();
+		HastySettings.GetSetting<HastySettings.GamepadDeadzonesSetting>().Applied += (_) => UpdateConfig();
 
 		// initialize SDL
 		Logger.Msg($"SDL {SDL.Version.Major}.{SDL.Version.Minor}.{SDL.Version.Micro} ({SDL.Revision})");
@@ -49,9 +40,13 @@ public static class Mod
 	{
 		ControllerManager!.PrePoll();
 		SDL!.Poll();
+		Rumble.Update(Time.unscaledDeltaTime);
 
-		ControllerManager!.GyroPaused = GyroPauser.Update();
-		ControllerManager!.Update(Time.unscaledDeltaTime);
+		ControllerManager.GyroButtonMode = HastySettings.GetSetting<HastySettings.GyroButtonModeSetting>().Value;
+		ControllerManager.GyroButtonDown = HastySettings.GyroButtonAction?.IsPressed() ?? false;
+		ControllerManager.GyroCalibrateButtonDown = HastySettings.GyroCalibrateAction?.IsPressed() ?? false;
+		ControllerManager.GyroPaused = GyroPauser.Update();
+		ControllerManager.Update(Time.unscaledDeltaTime);
 	}
 
 	public static void Deinitialize()
@@ -61,7 +56,7 @@ public static class Mod
 
 	static void UpdateConfig()
 	{
-		InputSystem.settings.defaultDeadzoneMin = GetSetting<GamepadDeadzonesSetting>().Value;
+		InputSystem.settings.defaultDeadzoneMin = HastySettings.GetSetting<HastySettings.GamepadDeadzonesSetting>().Value;
 		InputSystem.settings.defaultDeadzoneMax = 1f;
 	}
 }

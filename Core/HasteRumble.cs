@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.InputSystem;
 using static HastyControls.Core.Settings.HastySettings;
 
 namespace HastyControls.Core;
@@ -6,12 +7,13 @@ namespace HastyControls.Core;
 public class HasteRumble
 {
 	HasteEvents events;
-	ControllerManager controllers;
+	float lowFrequency;
+	float highFrequency;
+	float lifetime;
 
-	public HasteRumble(HasteEvents events, ControllerManager controllers)
+	public HasteRumble(HasteEvents events)
 	{
 		this.events = events;
-		this.controllers = controllers;
 
 		events.PlayerDamaged += OnPlayerDamaged;
 		events.PlayerLanded += OnPlayerLanded;
@@ -23,6 +25,26 @@ public class HasteRumble
 		events.PlayerFlyAbilityUsed += OnPlayerFlyAbilityUsed;
 		events.PlayerGrappleAbilityUsed += OnPlayerGrappleAbilityUsed;
 		events.PlayerGrappleAbilityFinished += OnPlayerGrappleAbilityFinished;
+	}
+
+	public void Update(float deltaTime)
+	{
+		Gamepad.current?.SetMotorSpeeds(lowFrequency, highFrequency);
+
+		lifetime -= deltaTime;
+		if (lifetime <= 0)
+		{
+			lifetime = 0f;
+			lowFrequency = 0f;
+			highFrequency = 0f;
+		}
+	}
+
+	void Rumble(float lowFrequency, float highFrequency, float duration)
+	{
+		this.lowFrequency = lowFrequency;
+		this.highFrequency = highFrequency;
+		this.lifetime = duration;
 	}
 
 	private void OnPlayerDamaged(float damage, Transform dealer, EffectSource source)
@@ -37,7 +59,7 @@ public class HasteRumble
 			if (maxHealth == 0) return;
 
 			float damageRatio = Mathf.Clamp01(damage / maxHealth);
-			controllers.ActiveController?.Rumble(damageRatio * multiplier, 0f, 0.2f);
+			Rumble(damageRatio * multiplier, 0f, 0.2f);
 		}
 	}
 
@@ -75,7 +97,7 @@ public class HasteRumble
 				return;
 		}
 
-		controllers.ActiveController?.Rumble(low * multiplier, high * multiplier, duration);
+		Rumble(low * multiplier, high * multiplier, duration);
 	}
 
 	private void OnPlayerCharging(float amount, bool up)
@@ -86,7 +108,7 @@ public class HasteRumble
 		if (up)
 		{
 			amount = Mathf.Clamp01(amount);
-			controllers.ActiveController?.Rumble(
+			Rumble(
 				amount * 0.125f * multiplier,
 				amount * 0.125f * multiplier,
 				0.1f
@@ -99,7 +121,7 @@ public class HasteRumble
 		float multiplier = GetSetting<RumbleIntensitySetting>().Value * GetSetting<RumbleOnFastRunSetting>().Value;
 		if (multiplier <= 0) return;
 
-		controllers.ActiveController?.Rumble(1f * multiplier, 1f * multiplier, 0.2f);
+		Rumble(1f * multiplier, 1f * multiplier, 0.2f);
 	}
 
 	private void OnPlayerSparkPickedUp()
@@ -107,7 +129,7 @@ public class HasteRumble
 		float multiplier = GetSetting<RumbleIntensitySetting>().Value * GetSetting<RumbleOnSparkPickupSetting>().Value;
 		if (multiplier <= 0) return;
 
-		controllers.ActiveController?.Rumble(0f, 0.5f * multiplier, 0.05f);
+		Rumble(0f, 0.5f * multiplier, 0.05f);
 	}
 
 	private void OnPlayerBoostRingPassed(float boost)
@@ -115,7 +137,7 @@ public class HasteRumble
 		float multiplier = GetSetting<RumbleIntensitySetting>().Value * GetSetting<RumbleOnBoostRingSetting>().Value;
 		if (multiplier <= 0) return;
 
-		controllers.ActiveController?.Rumble(0.5f * multiplier, 0.5f * multiplier, 0.2f);
+		Rumble(0.5f * multiplier, 0.5f * multiplier, 0.2f);
 	}
 
 	private void OnPlayerBoardBoosting()
@@ -123,7 +145,7 @@ public class HasteRumble
 		float multiplier = GetSetting<RumbleIntensitySetting>().Value * GetSetting<RumbleOnBoardBoostSetting>().Value;
 		if (multiplier <= 0) return;
 
-		controllers.ActiveController?.Rumble(0f, 0.15f * multiplier, 0.1f);
+		Rumble(0f, 0.15f * multiplier, 0.1f);
 	}
 
 	private void OnPlayerFlyAbilityUsed(bool grounded)
@@ -132,7 +154,7 @@ public class HasteRumble
 		if (multiplier <= 0) return;
 
 		float strength = grounded ? 0.75f : 0.2f;
-		controllers.ActiveController?.Rumble(strength * multiplier, strength * multiplier, 0.2f);
+		Rumble(strength * multiplier, strength * multiplier, 0.2f);
 	}
 
 	private void OnPlayerGrappleAbilityUsed()
@@ -140,7 +162,7 @@ public class HasteRumble
 		float multiplier = GetSetting<RumbleIntensitySetting>().Value * GetSetting<RumbleOnGrappleSetting>().Value;
 		if (multiplier <= 0) return;
 
-		controllers.ActiveController?.Rumble(0.2f * multiplier, 0.2f * multiplier, 0.2f);
+		Rumble(0.2f * multiplier, 0.2f * multiplier, 0.2f);
 	}
 
 	private void OnPlayerGrappleAbilityFinished()
@@ -148,6 +170,6 @@ public class HasteRumble
 		float multiplier = GetSetting<RumbleIntensitySetting>().Value * GetSetting<RumbleOnGrappleSetting>().Value;
 		if (multiplier <= 0) return;
 
-		controllers.ActiveController?.Rumble(0.1f * multiplier, 0.1f * multiplier, 0.2f);
+		Rumble(0.1f * multiplier, 0.1f * multiplier, 0.2f);
 	}
 }
