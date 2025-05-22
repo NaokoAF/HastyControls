@@ -3,4 +3,6 @@
 public interface IHastySetting : IExposedSetting
 {
 	public Func<bool>? ShowCondition { get; set; }
+
+	void Reset();
 }

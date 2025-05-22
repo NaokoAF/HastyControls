@@ -22,6 +22,7 @@ public abstract class HastyCollapsibleSetting : ButtonSetting, IHastySetting, IE
 	public string GetCategory() => category;
 	public LocalizedString GetDisplayName() => displayName;
 	public override string GetButtonText() => null!;
+	public void Reset() { }
 
 	public override void OnClicked(ISettingHandler settingHandler)
 	{

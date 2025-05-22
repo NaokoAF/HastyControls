@@ -27,4 +27,5 @@ public abstract class HastyFloatSetting : FloatSetting, IHastySetting, IExposedS
 	protected override float GetDefaultValue() => defaultValue;
 	protected override float2 GetMinMaxValue() => minMax;
 	public override void ApplyValue() => Applied?.Invoke(Value);
+	public void Reset() => Value = defaultValue;
 }

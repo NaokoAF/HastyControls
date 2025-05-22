@@ -28,4 +28,5 @@ public abstract class HastyBoolSetting : BoolSetting, IHastySetting, IExposedSet
 	public override LocalizedString OnString => null!;
 	List<string> IEnumSetting.GetUnlocalizedChoices() => choices;
 	public override void ApplyValue() => Applied?.Invoke(Value);
+	public void Reset() => Value = defaultValue;
 }

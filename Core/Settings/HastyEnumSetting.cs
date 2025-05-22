@@ -27,4 +27,5 @@ public abstract class HastyEnumSetting<T> : EnumSetting<T>, IHastySetting, IEnum
 	public override List<LocalizedString> GetLocalizedChoices() => null!;
 	List<string> IEnumSetting.GetUnlocalizedChoices() => choices;
 	public override void ApplyValue() => Applied?.Invoke(Value);
+	public void Reset() => Value = defaultValue;
 }

@@ -1,5 +1,6 @@
 ﻿using Landfall.Haste;
 using System.Runtime.CompilerServices;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
@@ -48,6 +49,7 @@ public static class HastySettings
 	public class RumbleOnBoardBoostSetting() : HastyFloatSetting(Category, "Rumble on Board Boost Intensity", "Rumble intensity when board boosting.", 0f, 5f, 1f);
 	public class RumbleOnGrappleSetting() : HastyFloatSetting(Category, "Rumble on Grapple Intensity", "Rumble intensity when activating the grappling hook (Heir's Javelin).", 0f, 5f, 1f);
 	public class RumbleOnFlySetting() : HastyFloatSetting(Category, "Rumble on Poncho Intensity", "Rumble intensity when activating the poncho (Sage's Cowl).", 0f, 5f, 1f);
+	public class ResetSettingsSetting() : HastyButtonSetting(Category, "Revert Settings to Defaults", "Resets all HastyControls settings to defaults.", "Reset", HastySettings.Reset);
 
 	static List<IHastySetting> hastySettings = new();
 
@@ -98,8 +100,20 @@ public static class HastySettings
 		Add<RumbleOnBoardBoostSetting>(rumble);
 		Add<RumbleOnGrappleSetting>(rumble);
 		Add<RumbleOnFlySetting>(rumble);
+
+		Add<ResetSettingsSetting>();
 	}
 
+	public static void Reset()
+	{
+		foreach (var setting in hastySettings)
+		{
+			setting.Reset();
+		}
+
+		// refresh UI
+		GameObject.FindObjectOfType<SettingsUIPage>()?.ShowSettings(Category);
+	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static T GetSetting<T>() where T : Setting, new() => SettingsStorage<T>.Setting;
