@@ -5,5 +5,5 @@ public static class ModInfo
 	public const string Guid = "NaokoAF.HastyControls";
 	public const string Name = "HastyControls";
 	public const string Author = "NaokoAF";
-	public const string Version = "0.3.0";
+	public const string Version = "0.4.0";
 }
