@@ -50,8 +50,8 @@ class GyroState
 
 	static IGyroSpace CreateGyroSpace(GyroSpace space) => space switch
 	{
-		GyroSpace.LocalYaw => new LocalGyroSpace(),
-		GyroSpace.LocalRoll => new LocalGyroSpace(GyroAxis.Pitch, GyroAxis.Roll),
+		GyroSpace.LocalYaw => new LocalGyroSpace(GyroAxis.Yaw),
+		GyroSpace.LocalRoll => new LocalGyroSpace(GyroAxis.Roll),
 		GyroSpace.PlayerTurn => new PlayerTurnGyroSpace(),
 		GyroSpace.PlayerLean => new PlayerLeanGyroSpace(),
 		_ => new LocalGyroSpace(),
