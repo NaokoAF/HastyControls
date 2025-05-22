@@ -32,6 +32,8 @@ public static class HastySettings
 	public class GyroTighteningSetting() : HastyFloatSetting(Category, "Gyro Tightening", "Soft gyro deadzone to reduce the effects of shaky hands.", 0f, 15f, 3f);
 	public class GyroSmoothingThresholdSetting() : HastyFloatSetting(Category, "Gyro Smoothing Threshold", "Threshold below which gyro rotations are smoothed.", 0f, 300f, 35f);
 	public class GyroSmoothingTimeSetting() : HastyFloatSetting(Category, "Gyro Smoothing Time", "Amount of time gyro is smoothed for.", 0f, 0.5f, 0.1f);
+	public class GyroInvertXSetting() : HastyBoolSetting(Category, "Gyro Invert X", "Invert gyro X axis (Horizontal).", false);
+	public class GyroInvertYSetting() : HastyBoolSetting(Category, "Gyro Invert Y", "Invert gyro Y axis (Vertical).", false);
 	public class AutoLookHorSpeedSetting() : HastyFloatSetting(Category, "AutoLook Horizontal Speed", "How fast the camera faces the direction of the left stick.", 0f, 10f, 1f);
 	public class AutoLookHorStrengthSetting() : HastyFloatSetting(Category, "AutoLook Horizontal Strength", "How strongly the camera faces the direction of the left stick.", 0f, 10f, 1f);
 	public class AutoLookVerSpeedSetting() : HastyFloatSetting(Category, "AutoLook Vertical Speed", "How fast the camera follows your vertical velocity.", 0f, 10f, 1f);
@@ -76,6 +78,8 @@ public static class HastySettings
 		Add<GyroTighteningSetting>(gyro);
 		Add<GyroSmoothingThresholdSetting>(gyro);
 		Add<GyroSmoothingTimeSetting>(gyro);
+		Add<GyroInvertXSetting>(gyro);
+		Add<GyroInvertYSetting>(gyro);
 
 		var autolook = Add<AutoLookCollapsibleSetting>();
 		Add<AutoLookHorSpeedSetting>(autolook);

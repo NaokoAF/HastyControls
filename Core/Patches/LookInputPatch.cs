@@ -52,6 +52,10 @@ internal static class LookInputPatch
 
 		gyro *= GetSetting<GyroSensitivitySetting>().Value;
 		gyro.Y *= GetSetting<GyroSensitivityRatioSetting>().Value;
+
+		if (GetSetting<GyroInvertXSetting>().Value) gyro.X = -gyro.X;
+		if (GetSetting<GyroInvertYSetting>().Value) gyro.Y = -gyro.Y;
+
 		___lookInput.x -= gyro.X;
 		___lookInput.y -= gyro.Y;
 	}
