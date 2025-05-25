@@ -22,6 +22,7 @@ public unsafe class SDLController
 	public Vector3 Accelerometer;
 	public ulong GyroscopeTimestamp;
 	public ulong AccelerometerTimestamp;
+	public SDLTouchpadFinger[][] Touchpads;
 
 	SDL sdl;
 
@@ -34,6 +35,12 @@ public unsafe class SDLController
 		Name = sdl.PtrToStringUTF8(sdl.GetGamepadName(Gamepad));
 		HasGyro = sdl.GamepadHasSensor(Gamepad, SDL_SensorType.SDL_SENSOR_GYRO);
 		Joystick = sdl.GetGamepadJoystick(gamepad);
+
+		Touchpads = new SDLTouchpadFinger[sdl.GetNumGamepadTouchpads(gamepad)][];
+		for (int i = 0; i < Touchpads.Length; i++)
+		{
+			Touchpads[i] = new SDLTouchpadFinger[sdl.GetNumGamepadTouchpadFingers(gamepad, i)];
+		}
 	}
 
 	public void SetGyroEnabled(bool enabled)

@@ -1,5 +1,6 @@
 ﻿using HastyControls.SDL3;
 using System.Numerics;
+using UnityEngine.InputSystem.EnhancedTouch;
 
 namespace HastyControls.Core;
 
@@ -13,6 +14,7 @@ public unsafe class SDLManager
 	public event Action<SDLController>? ControllerRemoved;
 	public event Action<SDLController, ControllerButton, bool>? ControllerButtonUpdated;
 	public event Action<SDLController, SDL_SensorType, Vector3, ulong>? ControllerSensorUpdated;
+	public event Action<SDLController, int, int, SDLTouchpadFinger>? ControllerTouchpadUpdated;
 
 	SDL sdl;
 	Dictionary<SDL_JoystickID, SDLController> controllers = new();
@@ -65,6 +67,11 @@ public unsafe class SDLManager
 					break;
 				case SDL_EventType.SDL_EVENT_GAMEPAD_AXIS_MOTION:
 					OnControllerAxisUpdate(evnt.gaxis);
+					break;
+				case SDL_EventType.SDL_EVENT_GAMEPAD_TOUCHPAD_DOWN:
+				case SDL_EventType.SDL_EVENT_GAMEPAD_TOUCHPAD_UP:
+				case SDL_EventType.SDL_EVENT_GAMEPAD_TOUCHPAD_MOTION:
+					OnControllerTouchpadUpdate(evnt.gtouchpad);
 					break;
 			}
 		}
@@ -141,5 +148,23 @@ public unsafe class SDLManager
 		}
 
 		ControllerSensorUpdated?.Invoke(controller, type, data, timestamp);
+	}
+
+	void OnControllerTouchpadUpdate(SDL_GamepadTouchpadEvent evnt)
+	{
+		if (!controllers.TryGetValue(evnt.which, out var controller)) return;
+
+		SDLTouchpadFinger finger = new()
+		{
+			Down = evnt.type != SDL_EventType.SDL_EVENT_GAMEPAD_TOUCHPAD_UP,
+			Position = new(evnt.x, evnt.y),
+			Pressure = evnt.pressure,
+			Timestamp = evnt.timestamp,
+		};
+
+		// update state
+		controller.Touchpads[evnt.touchpad][evnt.finger] = finger;
+
+		ControllerTouchpadUpdated?.Invoke(controller, evnt.touchpad, evnt.finger, finger);
 	}
 }
