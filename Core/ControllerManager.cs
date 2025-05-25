@@ -74,6 +74,23 @@ public unsafe class ControllerManager
 		}
 	}
 
+	public bool IsAnyTouchpadDown()
+	{
+		// yuck
+		foreach (var controller in gyroStates.Keys)
+		{
+			foreach (var touchpad in controller.Touchpads)
+			{
+				foreach (var finger in touchpad)
+				{
+					if (finger.Down)
+						return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	private void Sdl_ControllerAdded(SDLController controller)
 	{
 		if (controller.HasGyro)

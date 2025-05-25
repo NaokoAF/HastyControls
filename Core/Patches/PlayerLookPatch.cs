@@ -78,6 +78,7 @@ internal static class PlayerLookPatch
 		}
 	}
 
+	static bool gyroResetPrevButtonDown;
 	static float gyroResetT;
 	static Vector2 gyroResetAngle;
 	static Vector2 gyroResetPrevAngle;
@@ -91,7 +92,8 @@ internal static class PlayerLookPatch
 		var data = character.data;
 
 		// activate
-		if (HastySettings.GyroButtonAction?.WasPressedThisFrame() ?? false)
+		bool gyroButtonDown = Mod.ControllerManager!.GyroButtonDown;
+		if (gyroButtonDown && !gyroResetPrevButtonDown)
 		{
 			gyroResetT = 1f;
 			gyroResetPrevAngle = Vector2.zero;
@@ -110,6 +112,7 @@ internal static class PlayerLookPatch
 				gyroResetAngle.x = 0f;
 			}
 		}
+		gyroResetPrevButtonDown = gyroButtonDown;
 
 		// animate
 		if (gyroResetT > 0f)

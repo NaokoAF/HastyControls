@@ -2,6 +2,7 @@
 using HastyControls.SDL3;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using static HastyControls.Core.Settings.HastySettings;
 
 namespace HastyControls.Core;
 
@@ -42,10 +43,14 @@ public static class Mod
 		SDL!.Poll();
 		Rumble.Update(Time.unscaledDeltaTime);
 
-		ControllerManager.GyroButtonMode = HastySettings.GetSetting<HastySettings.GyroButtonModeSetting>().Value;
 		ControllerManager.GyroButtonDown = HastySettings.GyroButtonAction?.IsPressed() ?? false;
+		ControllerManager.GyroButtonMode = GetSetting<GyroButtonModeSetting>().Value;
 		ControllerManager.GyroCalibrateButtonDown = HastySettings.GyroCalibrateAction?.IsPressed() ?? false;
 		ControllerManager.GyroPaused = GyroPauser.Update();
+
+		if (GetSetting<GyroUseTouchpadAsModifier>().Value)
+			ControllerManager.GyroButtonDown |= ControllerManager.IsAnyTouchpadDown();
+
 		ControllerManager.Update(Time.unscaledDeltaTime);
 	}
 
@@ -56,7 +61,7 @@ public static class Mod
 
 	static void UpdateConfig()
 	{
-		InputSystem.settings.defaultDeadzoneMin = HastySettings.GetSetting<HastySettings.GamepadDeadzonesSetting>().Value;
+		InputSystem.settings.defaultDeadzoneMin = GetSetting<GamepadDeadzonesSetting>().Value;
 		InputSystem.settings.defaultDeadzoneMax = 1f;
 	}
 }
