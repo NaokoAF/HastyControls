@@ -7,15 +7,15 @@ internal static class AbilityGrapplePatch
 {
 	[HarmonyPatch(nameof(Grapple.Activate))]
 	[HarmonyPrefix]
-	static void ActivatePrefix()
+	static void ActivatePrefix(Player ___player)
 	{
-		Mod.Events.PlayerGrappleAbilityUsed?.Invoke();
+		Mod.Events.PlayerGrappleAbilityUsed?.Invoke(___player);
 	}
 
 	[HarmonyPatch("EndGrapple")]
 	[HarmonyPrefix]
-	static void EndGrapplePrefix()
+	static void EndGrapplePrefix(Player ___player)
 	{
-		Mod.Events.PlayerGrappleAbilityFinished?.Invoke();
+		Mod.Events.PlayerGrappleAbilityFinished?.Invoke(___player);
 	}
 }

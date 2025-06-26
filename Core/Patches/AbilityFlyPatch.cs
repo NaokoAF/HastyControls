@@ -7,14 +7,13 @@ internal static class AbilityFlyPatch
 {
 	[HarmonyPatch("Update")]
 	[HarmonyPrefix]
-	static void UpdatePrefix(Ability_Fly __instance)
+	static void UpdatePrefix(Ability_Fly __instance, PlayerCharacter ___player)
 	{
-		var player = PlayerCharacter.localPlayer;
-		bool ground = player.data.mostlyGrounded;
+		bool ground = ___player.data.mostlyGrounded;
 		float cost = ground ? __instance.groundCost : __instance.airCost;
-		if (player.input.abilityWasPressed && player.player.data.energy >= cost)
+		if (___player.input.abilityWasPressed && ___player.player.data.energy >= cost)
 		{
-			Mod.Events.PlayerFlyAbilityUsed?.Invoke(ground);
+			Mod.Events.PlayerFlyAbilityUsed?.Invoke(___player.player, ground);
 		}
 	}
 }

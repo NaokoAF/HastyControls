@@ -6,9 +6,10 @@ using static HastyControls.Core.Settings.HastySettings;
 
 namespace HastyControls.Core.Patches;
 
-[HarmonyPatch(typeof(PlayerCharacter), "SetLook")]
+[HarmonyPatch(typeof(PlayerCharacter))]
 internal static class PlayerLookPatch
 {
+	[HarmonyPatch("SetLook")]
 	[HarmonyPrefix]
 	static bool Prefix(PlayerCharacter __instance)
 	{

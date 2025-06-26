@@ -4,23 +4,23 @@ namespace HastyControls.Core;
 
 public class HasteEvents
 {
-	public Action<float, Transform, EffectSource>? PlayerDamaged;
-	public Action<LandingType, bool>? PlayerLanded;
-	public Action<bool>? PlayerChargingChanged;
-	public Action<float, bool>? PlayerCharging;
-	public Action? PlayerChargingEnded;
-	public Action<bool>? PlayerBoardBoostChanged;
-	public Action? PlayerBoardBoosting;
-	public Action<bool>? PlayerFlyAbilityUsed;
-	public Action? PlayerGrappleAbilityUsed;
-	public Action? PlayerGrappleAbilityFinished;
-	public Action? PlayerSlowMoAbilityUsed;
-	public Action? PlayerSlowMoAbilityFinished;
-	public Action<EffectSource, int>? PlayerResourceReceived;
-	public Action? PlayerSparkPickedUp;
-	public Action<float>? PlayerHealthChanged;
-	public Action<float>? PlayerEnergyChanged;
-	public Action<float>? PlayerBoostRingPassed;
+	public Action<Player, float, Transform, EffectSource>? PlayerDamaged;
+	public Action<Player, LandingType, bool>? PlayerLanded;
+	public Action<Player, bool>? PlayerChargingChanged;
+	public Action<Player, float, bool>? PlayerCharging;
+	public Action<Player>? PlayerChargingEnded;
+	public Action<Player, bool>? PlayerBoardBoostChanged;
+	public Action<Player>? PlayerBoardBoosting;
+	public Action<Player, bool>? PlayerFlyAbilityUsed;
+	public Action<Player>? PlayerGrappleAbilityUsed;
+	public Action<Player>? PlayerGrappleAbilityFinished;
+	public Action<Player>? PlayerSlowMoAbilityUsed;
+	public Action<Player>? PlayerSlowMoAbilityFinished;
+	public Action<Player, EffectSource, int>? PlayerResourceReceived;
+	public Action<Player>? PlayerSparkPickedUp;
+	public Action<Player, float>? PlayerHealthChanged;
+	public Action<Player, float>? PlayerEnergyChanged;
+	public Action<Player, float>? PlayerBoostRingPassed;
 
 	public Action? EscapeMenuOpened;
 	public Action? EscapeMenuClosed;

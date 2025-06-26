@@ -1,4 +1,6 @@
 ﻿using HarmonyLib;
+using UnityEngine;
+using static HelperFunctions;
 
 namespace HastyControls.Core.Patches;
 
@@ -7,22 +9,23 @@ internal static class BoostRingPatch
 {
 	[HarmonyPatch("OnTriggerStay")]
 	[HarmonyPrefix]
-	static void OnTriggerStayPrefix(TriggerEffect __instance, ref bool __state, ref bool ___used)
+	static void OnTriggerStayPrefix(TriggerEffect __instance, ref bool __state, bool ___used)
 	{
 		__state = ___used;
 	}
 
 	[HarmonyPatch("OnTriggerStay")]
 	[HarmonyPostfix]
-	static void OnTriggerStayPostfix(TriggerEffect __instance, ref bool __state, ref bool ___used)
+	static void OnTriggerStayPostfix(Collider other, TriggerEffect __instance, ref bool __state, bool ___used)
 	{
 		bool used = ___used;
 		if (used && !__state)
 		{
+			PlayerCharacter player = other.GetComponentInParent<PlayerCharacter>();
 			AddVariable_Boost? boostEffect = FindOfType<AddVariable_Boost>(__instance.effects);
-			if (boostEffect != null)
+			if (player != null && boostEffect != null)
 			{
-				Mod.Events.PlayerBoostRingPassed?.Invoke(boostEffect.addSpeed);
+				Mod.Events.PlayerBoostRingPassed?.Invoke(player.player, boostEffect.addSpeed);
 			}
 		}
 	}
