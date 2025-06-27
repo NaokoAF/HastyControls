@@ -1,5 +1,4 @@
 ﻿using HarmonyLib;
-using HastyControls.Core.Settings;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 using static HastyControls.Core.Settings.HastySettings;

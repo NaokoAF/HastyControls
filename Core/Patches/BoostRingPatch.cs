@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using UnityEngine;
-using static HelperFunctions;
 
 namespace HastyControls.Core.Patches;
 

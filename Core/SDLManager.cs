@@ -1,6 +1,5 @@
 ﻿using HastyControls.SDL3;
 using System.Numerics;
-using UnityEngine.InputSystem.EnhancedTouch;
 
 namespace HastyControls.Core;
 

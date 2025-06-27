@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace HastyControls.SDL3;
+﻿namespace HastyControls.SDL3;
 
 public enum SDL_SensorID : uint;
 

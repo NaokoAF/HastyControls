@@ -1,15 +1,12 @@
 ﻿using HastyControls.Core;
 using HastyControls.SDL3;
 using Landfall.Modding;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using UnityEngine;
 
 namespace HastyControls.Landfall;
 
 [LandfallPlugin]
-[SuppressMessage("Roslynator", "RCS1102:Make class static", Justification = "LandfallPlugin requires this class to be instanced")]
-public unsafe class LandfallPluginEntryPoint
 {
 	internal static SDL sdl;
 
