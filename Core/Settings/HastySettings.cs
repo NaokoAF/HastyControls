@@ -52,13 +52,16 @@ public static class HastySettings
 	public class RumbleOnFlySetting() : HastyFloatSetting(Category, "Rumble on Poncho Intensity", "Rumble intensity when activating the poncho (Sage's Cowl).", 0f, 5f, 1f);
 	public class ResetSettingsSetting() : HastyButtonSetting(Category, "Revert Settings to Defaults", "Resets all HastyControls settings to defaults.", "Reset", HastySettings.Reset);
 
+	static HasteSettingsHandler? settingsHandler;
 	static List<IHastySetting> hastySettings = new();
 
 	public static InputAction? GyroButtonAction;
 	public static InputAction? GyroCalibrateAction;
 
-	public static void Initialize()
+	public static void Initialize(HasteSettingsHandler settingsHandler)
 	{
+		HastySettings.settingsHandler = settingsHandler;
+
 		// bindings
 		GyroButtonAction = AddInputAction("3301647b-49b9-44eb-8bec-5d0dce7fda60", "Gyro Modifier Button", "<GamePad>/rightStickPress");
 		GyroCalibrateAction = AddInputAction("12181a04-3618-4741-acbe-c2016ca52bdc", "Gyro Calibrate Button", "<DualShockGamepad>/touchpadButton");
@@ -131,7 +134,7 @@ public static class HastySettings
 			setting.ShowCondition = () => !collapsibleCategory.Collapsed && (collapsibleCategory.ShowCondition?.Invoke() ?? true);
 		}
 
-		GameHandler.Instance.SettingsHandler.AddSetting(setting);
+		settingsHandler!.AddSetting(setting);
 		return setting;
 	}
 
@@ -177,7 +180,7 @@ public static class HastySettings
 		LocalizationSettings.StringDatabase.GetTable("Settings").AddEntry(name, localizedName);
 
 		// add to settings list
-		GameHandler.Instance.SettingsHandler.AddSetting(new InputRebindSetting(action));
+		settingsHandler!.AddSetting(new InputRebindSetting(action));
 		return action;
 	}
 

@@ -3,13 +3,14 @@ using HastyControls.Core.Settings;
 
 namespace HastyControls.Core.Patches;
 
-[HarmonyPatch(typeof(HasteSettingsHandler))]
+[HarmonyPatch(typeof(GameHandler))]
 internal static class HasteSettingsPatch
 {
-	[HarmonyPatch(nameof(HasteSettingsHandler.RegisterPage))]
-	[HarmonyPrefix]
-	static void RegisterPagePrefix(HasteSettingsHandler __instance)
+	[HarmonyPatch("Awake")]
+	[HarmonyPostfix]
+	static void AwakePostfix(GameHandler __instance)
 	{
-		HastySettings.Initialize();
+		Mod.Logger.Msg("Initializing HastySettings");
+		HastySettings.Initialize(__instance.SettingsHandler);
 	}
 }
