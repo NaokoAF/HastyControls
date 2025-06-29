@@ -12,6 +12,7 @@ public unsafe class SDLManager
 	public event Action<SDLController>? ControllerAdded;
 	public event Action<SDLController>? ControllerRemoved;
 	public event Action<SDLController, ControllerButton, bool>? ControllerButtonUpdated;
+	public event Action<SDLController, ControllerAxis, float>? ControllerAxisUpdated;
 	public event Action<SDLController, SDL_SensorType, Vector3, ulong>? ControllerSensorUpdated;
 	public event Action<SDLController, int, int, SDLTouchpadFinger>? ControllerTouchpadUpdated;
 
@@ -125,6 +126,8 @@ public unsafe class SDLManager
 			case ControllerAxis.LeftTrigger: controller.LeftTrigger = valueF; break;
 			case ControllerAxis.RightTrigger: controller.RightTrigger = valueF; break;
 		}
+
+		ControllerAxisUpdated?.Invoke(controller, (ControllerAxis)evnt.axis, valueF);
 	}
 
 	void OnControllerSensorUpdate(SDL_GamepadSensorEvent evnt)
