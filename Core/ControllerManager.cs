@@ -11,6 +11,7 @@ public unsafe class ControllerManager
 	public bool GyroButtonDown { get; set; }
 	public bool GyroCalibrateButtonDown { get; set; }
 	public bool GyroPaused { get; set; }
+	public SDLController? ActiveController => activeController;
 
 	public event Action<SDLController, Vector3>? GyroBiasCalibrated;
 
@@ -19,6 +20,7 @@ public unsafe class ControllerManager
 	bool gyroButtonState = true;
 	bool prevGyroButtonDown;
 	Dictionary<SDLController, GyroState> gyroStates = new();
+	SDLController? activeController;
 
 	public ControllerManager(SDLManager sdl)
 	{
@@ -26,6 +28,8 @@ public unsafe class ControllerManager
 		sdl.ControllerAdded += Sdl_ControllerAdded;
 		sdl.ControllerRemoved += Sdl_ControllerRemoved;
 		sdl.ControllerSensorUpdated += Sdl_ControllerSensorUpdated;
+		sdl.ControllerButtonUpdated += Sdl_ControllerButtonUpdated;
+		sdl.ControllerAxisUpdated += Sdl_ControllerAxisUpdated;
 	}
 
 	public void PrePoll()
@@ -100,11 +104,17 @@ public unsafe class ControllerManager
 			gyro.BiasCalibrated += bias => GyroBiasCalibrated?.Invoke(controller, bias);
 			gyroStates.Add(controller, gyro);
 		}
+
+		if (activeController == null)
+			activeController = controller;
 	}
 
 	private void Sdl_ControllerRemoved(SDLController controller)
 	{
 		gyroStates.Remove(controller);
+
+		if (activeController == controller)
+			activeController = null;
 	}
 
 	private void Sdl_ControllerSensorUpdated(SDLController controller, SDL_SensorType sensor, Vector3 data, ulong timestamp)
@@ -119,6 +129,19 @@ public unsafe class ControllerManager
 			case SDL_SensorType.SDL_SENSOR_ACCEL:
 				gyro.GyroInput.AddAccelerometerSample(data, timestamp);
 				break;
+		}
+	}
+
+	private void Sdl_ControllerButtonUpdated(SDLController controller, ControllerButton button, bool down)
+	{
+		activeController = controller;
+	}
+
+	private void Sdl_ControllerAxisUpdated(SDLController controller, ControllerAxis axis, float value)
+	{
+		if (MathF.Abs(value) > 0.2f)
+		{
+			activeController = controller;
 		}
 	}
 }
