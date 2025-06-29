@@ -6,10 +6,13 @@ namespace HastyControls.Core;
 
 public class HasteRumble
 {
+	ControllerManager controllerManager;
 	Dictionary<string, RumbleEvent> rumbleEvents = new();
 
-	public HasteRumble(HasteEvents events)
+	public HasteRumble(HasteEvents events, ControllerManager controllerManager)
 	{
+		this.controllerManager = controllerManager;
+
 		events.PlayerDamaged += OnPlayerDamaged;
 		events.PlayerLanded += OnPlayerLanded;
 		events.PlayerCharging += OnPlayerCharging;
@@ -37,8 +40,7 @@ public class HasteRumble
 			rumble.Lifetime -= deltaTime;
 		}
 
-		// assumes unity will clamp the values for us
-		Gamepad.current?.SetMotorSpeeds(low, high);
+		controllerManager.ActiveController?.Rumble(low, high, 0.5f);
 	}
 
 	void Rumble(string id, float lowFrequency, float highFrequency, float duration)

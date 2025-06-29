@@ -13,12 +13,13 @@ public static class Mod
 	internal static GyroPauser GyroPauser = new(Events);
 	internal static SDLManager? SDL;
 	internal static ControllerManager? ControllerManager;
-	internal static HasteRumble Rumble = new(Events);
+	internal static HasteRumble? Rumble;
 
 	public static void Initialize(SDL sdl)
 	{
 		SDL = new(sdl);
 		ControllerManager = new(SDL);
+		Rumble = new(Events, ControllerManager);
 
 		// add logging
 		SDL.ControllerAdded += controller => Logger.Msg($"Controller {controller.Id} added - {controller.Name} (Gyro: {controller.HasGyro})");
@@ -41,7 +42,7 @@ public static class Mod
 	{
 		ControllerManager!.PrePoll();
 		SDL!.Poll();
-		Rumble.Update(Time.unscaledDeltaTime);
+		Rumble!.Update(Time.unscaledDeltaTime);
 
 		ControllerManager.GyroButtonDown = HastySettings.GyroButtonAction?.IsPressed() ?? false;
 		ControllerManager.GyroButtonMode = GetSetting<GyroButtonModeSetting>().Value;
