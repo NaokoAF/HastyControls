@@ -116,7 +116,7 @@ public unsafe class SDLManager
 		if (!controllers.TryGetValue(evnt.which, out var controller)) return;
 
 		// properly remap from (-32768, 32767) to (-1, 1)
-		float valueF = (evnt.value + 32768f) / 65535f;
+		float valueF = (evnt.value + 32768) / 65535 * 2 - 1;
 		switch ((ControllerAxis)evnt.axis)
 		{
 			case ControllerAxis.LeftStickX: controller.LeftStick.X = valueF; break;
