@@ -15,7 +15,7 @@ class GyroState
 
 	GyroSpace currentGyroSpace = GyroSpace.LocalYaw;
 
-	public Vector2 Update(float deltaTime)
+	public Vector2 Update(bool active, float deltaTime)
 	{
 		if (BiasCalibrationTime > 0)
 		{
@@ -23,6 +23,12 @@ class GyroState
 			GyroInput.Calibrating = BiasCalibrationTime > 0;
 			if (BiasCalibrationTime <= 0)
 				BiasCalibrated?.Invoke(GyroInput.Bias);
+		}
+
+		if (!active)
+		{
+			GyroProcessor.Reset();
+			return Vector2.Zero;
 		}
 
 		var gyroSpaceSetting = GetSetting<GyroSpaceSetting>().Value;
@@ -56,9 +62,4 @@ class GyroState
 		GyroSpace.PlayerLean => new PlayerLeanGyroSpace(),
 		_ => new LocalGyroSpace(),
 	};
-
-	public void Reset()
-	{
-		GyroProcessor.Reset();
-	}
 }

@@ -62,19 +62,13 @@ public unsafe class ControllerManager
 
 		// add up gyro on all controllers
 		gyroDelta = Vector2.Zero;
+		bool gyroActive = gyroButtonState && !GyroPaused;
 		foreach (var gyro in gyroStates.Values)
 		{
 			if (GyroCalibrateButtonDown)
 				gyro.BiasCalibrationTime = 0.1f;
 
-			if (gyroButtonState && !GyroPaused)
-			{
-				gyroDelta += gyro.Update(deltaTime);
-			}
-			else
-			{
-				gyro.Reset();
-			}
+			gyroDelta += gyro.Update(gyroActive, deltaTime);
 		}
 	}
 
