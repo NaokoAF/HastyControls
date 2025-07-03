@@ -1,4 +1,5 @@
-﻿using HastyControls.SDL3;
+﻿using GyroHelpers;
+using HastyControls.SDL3;
 using System.Numerics;
 
 namespace HastyControls.Core;
@@ -57,6 +58,19 @@ public unsafe class SDLController
 			(ushort)(Math.Clamp(highFrequency, 0f, 1f) * 65535f),
 			(uint)(Math.Clamp(duration, 0f, 4294967.295f) * 1000f)
 		);
+	}
+
+	public bool IsAnyTouchpadDown()
+	{
+		foreach (var touchpad in Touchpads)
+		{
+			foreach (var finger in touchpad)
+			{
+				if (finger.Down)
+					return true;
+			}
+		}
+		return false;
 	}
 
 	public void SetButton(int button, bool down)
