@@ -63,8 +63,19 @@ public static class HastySettings
 		HastySettings.settingsHandler = settingsHandler;
 
 		// bindings
-		GyroButtonAction = AddInputAction("3301647b-49b9-44eb-8bec-5d0dce7fda60", "Gyro Modifier Button", "<GamePad>/rightStickPress");
-		GyroCalibrateAction = AddInputAction("12181a04-3618-4741-acbe-c2016ca52bdc", "Gyro Calibrate Button", "<DualShockGamepad>/touchpadButton");
+		GyroButtonAction = AddInputAction(
+			id: new Guid("3301647b-49b9-44eb-8bec-5d0dce7fda60"),
+			name: "Gyro Modifier Button",
+			path: "<GamePad>/rightStickPress",
+			actionMap: null
+		);
+
+		GyroCalibrateAction = AddInputAction(
+			id: new Guid("12181a04-3618-4741-acbe-c2016ca52bdc"),
+			name: "Gyro Calibrate Button",
+			path: "<DualShockGamepad>/touchpadButton",
+			actionMap: ModInfo.Guid
+		);
 
 		// settings
 		var general = Add<GeneralCollapsibleSetting>();
@@ -139,45 +150,50 @@ public static class HastySettings
 	}
 
 	// based on https://github.com/netux/haste-LookBehind/blob/main/Utils.cs
-	static InputAction AddInputAction(string id, string localizedName, string? path)
+	static InputAction AddInputAction(Guid id, string name, string? path, string? actionMap)
 	{
-		string name = $"{ModInfo.Guid}.{id}"; // generate unique name
-
-		var defaultActionMap = InputHandler.Instance.Default;
-
-		// check if the action name isnt in use
-		if (defaultActionMap.FindAction(name) != null)
-			throw new InvalidOperationException($"Input action {name} already exists.");
+		string actionName = $"{ModInfo.Guid}.{id}"; // generate unique name
 
 		// all actions must be disabled before adding a new one
-		foreach (var actionMap in defaultActionMap.asset.actionMaps)
+		foreach (InputActionMap other in InputSystem.actions.actionMaps)
 		{
-			actionMap.Disable();
+			other.Disable();
 		}
-		defaultActionMap.Disable();
+
+		// add or create action map, falling back to game's default
+		InputActionMap map = InputHandler.Instance.Default;
+		if (actionMap != null)
+		{
+			map = InputSystem.actions.FindActionMap(actionMap) ?? InputSystem.actions.AddActionMap(actionMap);
+		}
+		map.Disable();
+
+		// check if the action name isnt in use
+		if (map.FindAction(actionName) != null)
+			throw new InvalidOperationException($"Input action {actionName} already exists.");
 
 		// add action and binding
-		var action = defaultActionMap.AddAction(name);
+		InputAction action = map.AddAction(actionName);
 		if (path != null)
 		{
 			action.AddBinding(new InputBinding()
 			{
-				id = new Guid(id),
+				id = id,
 				path = path,
 				groups = ";Gamepad",
 				interactions = "hold(duration=0)",
 			});
 		}
 
-		// reenable actions
-		foreach (var actionMap in defaultActionMap.asset.actionMaps)
+		// re-enable actions
+		foreach (InputActionMap other in InputSystem.actions.actionMaps)
 		{
-			actionMap.Enable();
+			other.Enable();
 		}
-		defaultActionMap.Enable();
+		map.Enable();
 
 		// add localization for action name
-		LocalizationSettings.StringDatabase.GetTable("Settings").AddEntry(name, localizedName);
+		LocalizationSettings.StringDatabase.GetTable("Settings").AddEntry(actionName, name);
 
 		// add to settings list
 		settingsHandler!.AddSetting(new InputRebindSetting(action));
