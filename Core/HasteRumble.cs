@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using UnityEngine.InputSystem;
+using Zorro.Settings;
 using static HastyControls.Core.Settings.HastySettings;
 
 namespace HastyControls.Core;
@@ -43,7 +43,7 @@ public class HasteRumble
 		controllerManager.ActiveController?.Rumble(low, high, 0.5f);
 	}
 
-	void Rumble(string id, float lowFrequency, float highFrequency, float duration)
+	void Rumble<TSetting>(string id, float lowFrequency, float highFrequency, float duration) where TSetting : FloatSetting, new()
 	{
 		RumbleEvent rumble;
 		if (!rumbleEvents.TryGetValue(id, out rumble))
@@ -52,8 +52,9 @@ public class HasteRumble
 			rumbleEvents[id] = rumble;
 		}
 
-		rumble.LowFrequency = lowFrequency;
-		rumble.HighFrequency = highFrequency;
+		float multiplier = GetSetting<RumbleIntensitySetting>().Value * GetSetting<TSetting>().Value;
+		rumble.LowFrequency = lowFrequency * multiplier;
+		rumble.HighFrequency = highFrequency * multiplier;
 		rumble.Lifetime = duration;
 	}
 
@@ -61,18 +62,12 @@ public class HasteRumble
 	{
 		if (player != Player.localPlayer) return;
 
-		float multiplier = GetSetting<RumbleIntensitySetting>().Value * GetSetting<RumbleOnDamageSetting>().Value;
-		if (multiplier <= 0) return;
-
-		Rumble(nameof(OnPlayerDamaged), 1f * multiplier, 0f, 0.2f);
+		Rumble<RumbleOnDamageSetting>(nameof(OnPlayerDamaged), 1f, 0f, 0.2f);
 	}
 
 	private void OnPlayerLanded(Player player, LandingType type, bool arg2)
 	{
 		if (player != Player.localPlayer) return;
-
-		float multiplier = GetSetting<RumbleIntensitySetting>().Value * GetSetting<RumbleOnLandSetting>().Value;
-		if (multiplier <= 0) return;
 
 		float low;
 		float high;
@@ -98,95 +93,69 @@ public class HasteRumble
 				return;
 		}
 
-		Rumble(nameof(OnPlayerLanded), low * multiplier, high * multiplier, 0.2f);
+		Rumble<RumbleOnLandSetting>(nameof(OnPlayerLanded), low, high, 0.2f);
 	}
 
 	private void OnPlayerCharging(Player player, float amount, bool up)
 	{
 		if (player != Player.localPlayer) return;
+		if (!up) return;
 
-		float multiplier = GetSetting<RumbleIntensitySetting>().Value * GetSetting<RumbleOnFastRunSetting>().Value;
-		if (multiplier <= 0) return;
-
-		if (up)
-		{
-			amount = Mathf.Clamp01(amount);
-			Rumble(nameof(OnPlayerCharging),
-				amount * 0.3f * multiplier,
-				amount * 0.3f * multiplier,
-				0.1f
-			);
-		}
+		amount = Mathf.Clamp01(amount);
+		Rumble<RumbleOnFastRunSetting>(nameof(OnPlayerCharging),
+			amount * 0.3f,
+			amount * 0.3f,
+			0.1f
+		);
 	}
 
 	private void OnPlayerChargingEnded(Player player)
 	{
 		if (player != Player.localPlayer) return;
 
-		float multiplier = GetSetting<RumbleIntensitySetting>().Value * GetSetting<RumbleOnFastRunSetting>().Value;
-		if (multiplier <= 0) return;
-
-		Rumble(nameof(OnPlayerChargingEnded), 1f * multiplier, 1f * multiplier, 0.2f);
+		Rumble<RumbleOnFastRunSetting>(nameof(OnPlayerChargingEnded), 1f, 1f, 0.2f);
 	}
 
 	private void OnPlayerSparkPickedUp(Player player)
 	{
 		if (player != Player.localPlayer) return;
 
-		float multiplier = GetSetting<RumbleIntensitySetting>().Value * GetSetting<RumbleOnSparkPickupSetting>().Value;
-		if (multiplier <= 0) return;
-
-		Rumble(nameof(OnPlayerSparkPickedUp), 0f, 0.2f * multiplier, 0.1f);
+		Rumble<RumbleOnSparkPickupSetting>(nameof(OnPlayerSparkPickedUp), 0f, 0.2f, 0.1f);
 	}
 
 	private void OnPlayerBoostRingPassed(Player player, float boost)
 	{
 		if (player != Player.localPlayer) return;
 
-		float multiplier = GetSetting<RumbleIntensitySetting>().Value * GetSetting<RumbleOnBoostRingSetting>().Value;
-		if (multiplier <= 0) return;
-
-		Rumble(nameof(OnPlayerBoostRingPassed), 0.75f * multiplier, 0.75f * multiplier, 0.2f);
+		Rumble<RumbleOnBoostRingSetting>(nameof(OnPlayerBoostRingPassed), 0.75f, 0.75f, 0.2f);
 	}
 
 	private void OnPlayerBoardBoosting(Player player)
 	{
 		if (player != Player.localPlayer) return;
 
-		float multiplier = GetSetting<RumbleIntensitySetting>().Value * GetSetting<RumbleOnBoardBoostSetting>().Value;
-		if (multiplier <= 0) return;
-
-		Rumble(nameof(OnPlayerBoardBoosting), 0f, 0.3f * multiplier, 0.1f);
+		Rumble<RumbleOnBoardBoostSetting>(nameof(OnPlayerBoardBoosting), 0f, 0.3f, 0.1f);
 	}
 
 	private void OnPlayerFlyAbilityUsed(Player player, bool grounded)
 	{
 		if (player != Player.localPlayer) return;
 
-		float multiplier = GetSetting<RumbleIntensitySetting>().Value * GetSetting<RumbleOnFlySetting>().Value;
-		if (multiplier <= 0) return;
-
-		Rumble(nameof(OnPlayerFlyAbilityUsed), 0.75f * multiplier, 0.75f * multiplier, 0.2f);
+		Rumble<RumbleOnFlySetting>(nameof(OnPlayerFlyAbilityUsed), 0.75f, 0.75f, 0.2f);
 	}
 
 	private void OnPlayerGrappleAbilityUsed(Player player)
 	{
 		if (player != Player.localPlayer) return;
 
-		float multiplier = GetSetting<RumbleIntensitySetting>().Value * GetSetting<RumbleOnGrappleSetting>().Value;
-		if (multiplier <= 0) return;
-
-		Rumble(nameof(OnPlayerGrappleAbilityUsed), 0.75f * multiplier, 0.75f * multiplier, 0.2f);
+		Rumble<RumbleOnGrappleSetting>(nameof(OnPlayerGrappleAbilityUsed), 0.75f, 0.75f, 0.2f);
 	}
 
 	private void OnPlayerGrappleAbilityFinished(Player player)
 	{
 		if (player != Player.localPlayer) return;
 
-		float multiplier = GetSetting<RumbleIntensitySetting>().Value * GetSetting<RumbleOnGrappleSetting>().Value;
-		if (multiplier <= 0) return;
-
-		Rumble(nameof(OnPlayerGrappleAbilityFinished), 0.6f * multiplier, 0.6f * multiplier, 0.2f);
+		Rumble<RumbleOnGrappleSetting>(nameof(OnPlayerGrappleAbilityFinished), 0.6f, 0.6f, 0.2f);
 	}
 
 	class RumbleEvent
