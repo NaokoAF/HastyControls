@@ -1,5 +1,4 @@
-﻿using GyroHelpers;
-using HastyControls.SDL3;
+﻿using HastyControls.SDL3;
 using System.Numerics;
 
 namespace HastyControls.Core;
@@ -12,6 +11,7 @@ public unsafe class SDLController
 
 	public string? Name { get; }
 	public bool HasGyro { get; }
+	public SDL_GamepadType GamepadType { get; }
 
 	// state
 	public uint Buttons;
@@ -36,6 +36,7 @@ public unsafe class SDLController
 		Name = sdl.PtrToStringUTF8(sdl.GetGamepadName(Gamepad));
 		HasGyro = sdl.GamepadHasSensor(Gamepad, SDL_SensorType.SDL_SENSOR_GYRO);
 		Joystick = sdl.GetGamepadJoystick(gamepad);
+		GamepadType = sdl.GetGamepadType(gamepad);
 
 		Touchpads = new SDLTouchpadFinger[sdl.GetNumGamepadTouchpads(gamepad)][];
 		for (int i = 0; i < Touchpads.Length; i++)
