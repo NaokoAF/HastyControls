@@ -16,6 +16,9 @@ internal static class RumbleHandlerPatch
 	{
 		if (!__instance.RumbleEnabled) return false;
 
+		// skip if legacy rumble is enabled
+		if (HastySettings.GetSetting<RumbleEnabledLegacySetting>().Value) return false;
+
 		// combine rumble values from all instances. sorted by priority
 		IOrderedEnumerable<RumbleInstance> sortedInstances = ___m_activeRumbleInstances.OrderBy((RumbleInstance instance) => instance.Priority());
 		float low = 0f;

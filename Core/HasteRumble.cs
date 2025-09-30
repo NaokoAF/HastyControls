@@ -27,6 +27,9 @@ public class HasteRumble
 
 	public void Update(float deltaTime)
 	{
+		if (!GetSetting<RumbleEnabledLegacySetting>().Value)
+			return;
+
 		float low = 0f;
 		float high = 0f;
 

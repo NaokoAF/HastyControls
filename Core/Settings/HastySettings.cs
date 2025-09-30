@@ -19,7 +19,7 @@ public static class HastySettings
 	public class GamepadCollapsibleSetting() : HastyCollapsibleSetting(Category, "Gamepad Settings", "");
 	public class GyroCollapsibleSetting() : HastyCollapsibleSetting(Category, "Gyro Settings", "");
 	public class AutoLookCollapsibleSetting() : HastyCollapsibleSetting(Category, "AutoLook Settings", "");
-	public class RumbleCollapsibleSetting() : HastyCollapsibleSetting(Category, "Rumble Settings", "");
+	public class RumbleCollapsibleSetting() : HastyCollapsibleSetting(Category, "Rumble Settings (Legacy)", "");
 
 	public class GeneralDisableAbilitiesInSafeZonesSetting() : HastyBoolSetting(Category, "Disable Abilities in Safe Zones", "Prevent accidental usage of abilities in the shop and healing areas.", true);
 	public class GamepadSensitivityRatioSetting() : HastyFloatSetting(Category, "Gamepad Sensitivity Ratio", "Vertical sensitivity multiplier. 0.75 means vertical sensitivity is 75% slower than horizontal.", 0f, 5f, 1f);
@@ -41,7 +41,8 @@ public static class HastySettings
 	public class AutoLookVerSpeedSetting() : HastyFloatSetting(Category, "AutoLook Vertical Speed", "How fast the camera follows your vertical velocity.", 0f, 10f, 1f);
 	public class AutoLookVerStrengthSetting() : HastyFloatSetting(Category, "AutoLook Vertical Strength", "How strongly the camera follows your vertical velocity.", 0f, 10f, 0f);
 	public class AutoLookVerBaseAngleSetting() : HastyFloatSetting(Category, "AutoLook Vertical Base Angle", "Default vertical angle while touching the ground. Higher values tilt the camera downward.", -5f, 5f, 1f);
-	public class RumbleIntensitySetting() : HastyFloatSetting(Category, "Rumble Intensity", "Overall rumble intensity. 0 to disable rumble completely.", 0f, 5f, 1f);
+	public class RumbleEnabledLegacySetting() : HastyBoolSetting(Category, "Rumble Enabled", "Enable HastyControl's old rumble implementation (Before Patch 1.7.a)", false);
+	public class RumbleIntensitySetting() : HastyFloatSetting(Category, "Rumble Intensity", "Overall rumble intensity.", 0f, 5f, 1f);
 	public class RumbleOnDamageSetting() : HastyFloatSetting(Category, "Rumble on Damage Intensity", "Rumble intensity when taking damage.", 0f, 5f, 1f);
 	public class RumbleOnLandSetting() : HastyFloatSetting(Category, "Rumble on Land Intensity", "Rumble intensity when landing. Different landing grades have different rumble properties.", 0f, 5f, 1f);
 	public class RumbleOnFastRunSetting() : HastyFloatSetting(Category, "Rumble on Fast Run Intensity", "Rumble intensity when charging up fast run.", 0f, 5f, 1f);
@@ -107,6 +108,7 @@ public static class HastySettings
 		Add<AutoLookVerBaseAngleSetting>(autolook);
 
 		var rumble = Add<RumbleCollapsibleSetting>();
+		Add<RumbleEnabledLegacySetting>(rumble);
 		Add<RumbleIntensitySetting>(rumble);
 		Add<RumbleOnDamageSetting>(rumble);
 		Add<RumbleOnLandSetting>(rumble);
