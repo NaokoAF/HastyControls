@@ -175,7 +175,7 @@ public static class HastySettings
 			throw new InvalidOperationException($"Input action {actionName} already exists.");
 
 		// add action and binding
-		InputAction action = map.AddAction(actionName);
+		InputAction action = map.AddAction(actionName, InputActionType.Button);
 		if (path != null)
 		{
 			action.AddBinding(new InputBinding()
