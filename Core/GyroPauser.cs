@@ -1,16 +1,19 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
+using Zorro.UI.Modal;
 using static HastyControls.Core.Settings.HastySettings;
 
 namespace HastyControls.Core;
 
 public class GyroPauser
 {
+	public bool IsGamePaused => gamePaused;
 	public bool IsGyroPaused => gyroPaused;
 
 	float gyroPauseTime;
 	bool gyroPauseOnce;
 	bool gyroPaused;
+	bool gamePaused;
 
 	public GyroPauser(HasteEvents events)
 	{
@@ -23,6 +26,10 @@ public class GyroPauser
 	public void Update()
 	{
 		gyroPaused = true; // gyro is assumed paused by default. must pass all checks to be unpaused
+
+		gamePaused = EscapeMenu.IsOpen || Modal.IsOpen || StopHandler.IsStopped;
+		if (gamePaused)
+			return;
 
 		// pause the very first frame as it can have a very large delta time due to stutter
 		if (gyroPauseOnce)
