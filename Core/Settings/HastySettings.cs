@@ -130,7 +130,7 @@ public static class HastySettings
 		}
 
 		// refresh UI
-		GameObject.FindObjectOfType<SettingsUIPage>()?.ShowSettings(Category);
+		GameObject.FindAnyObjectByType<SettingsUIPage>()?.ShowSettings(Category);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
