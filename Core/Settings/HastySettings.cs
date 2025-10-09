@@ -74,7 +74,7 @@ public static class HastySettings
 		GyroCalibrateAction = AddInputAction(
 			id: new Guid("12181a04-3618-4741-acbe-c2016ca52bdc"),
 			name: "Gyro Calibrate Button",
-			path: "<DualShockGamepad>/touchpadButton",
+			path: "<GamePad>/select",
 			actionMap: ModInfo.Guid
 		);
 
