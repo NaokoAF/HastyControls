@@ -47,7 +47,7 @@ public static class Mod
 
 		ControllerManager.GyroButtonDown = HastySettings.GyroButtonAction?.IsPressed() ?? false;
 		ControllerManager.GyroButtonMode = GetSetting<GyroButtonModeSetting>().Value;
-		ControllerManager.GyroCalibrateButtonDown = HastySettings.GyroCalibrateAction?.IsPressed() ?? false;
+		ControllerManager.GyroCalibrateButtonDown = (HastySettings.GyroCalibrateAction?.IsPressed() ?? false) && EscapeMenu.IsOpen;
 		ControllerManager.GyroPaused = GyroPauser.IsGyroPaused;
 
 		if (GetSetting<GyroUseTouchpadAsModifier>().Value && ControllerManager.ActiveController != null)
