@@ -43,11 +43,12 @@ public static class Mod
 		ControllerManager!.PrePoll();
 		SDL!.Poll();
 		Rumble!.Update(Time.unscaledDeltaTime);
+		GyroPauser.Update();
 
 		ControllerManager.GyroButtonDown = HastySettings.GyroButtonAction?.IsPressed() ?? false;
 		ControllerManager.GyroButtonMode = GetSetting<GyroButtonModeSetting>().Value;
 		ControllerManager.GyroCalibrateButtonDown = HastySettings.GyroCalibrateAction?.IsPressed() ?? false;
-		ControllerManager.GyroPaused = GyroPauser.Update();
+		ControllerManager.GyroPaused = GyroPauser.IsGyroPaused;
 
 		if (GetSetting<GyroUseTouchpadAsModifier>().Value && ControllerManager.ActiveController != null)
 			ControllerManager.GyroButtonDown |= ControllerManager.ActiveController.IsAnyTouchpadDown();
