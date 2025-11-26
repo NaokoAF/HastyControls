@@ -1,14 +1,16 @@
-﻿using HarmonyLib;
+﻿using Landfall.Modding;
 
 namespace HastyControls.Core.Patches;
 
-[HarmonyPatch(typeof(PlayerMovement))]
+[LandfallPlugin]
 internal static class PlayerLandPatch
 {
-	[HarmonyPatch("Start")]
-	[HarmonyPostfix]
-	static void StartPostfix(PlayerMovement __instance)
+	static PlayerLandPatch()
 	{
-		__instance.landAction += (character, type, unknown) => Mod.Events.PlayerLanded?.Invoke(character.player, type, unknown);
+		On.PlayerMovement.Start += (orig, self) =>
+		{
+			orig(self);
+			self.landAction += (character, type, unknown) => Mod.Events.PlayerLanded?.Invoke(character.player, type, unknown);
+		};
 	}
 }

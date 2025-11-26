@@ -1,28 +1,32 @@
-﻿using HarmonyLib;
+﻿using System.Reflection;
+using Landfall.Modding;
+using MonoMod.RuntimeDetour;
 
 namespace HastyControls.Core.Patches;
 
-[HarmonyPatch(typeof(Ability_Slomo))]
+[LandfallPlugin]
 internal static class AbilitySlomoPatch
 {
-	[HarmonyPatch("Update")]
-	[HarmonyPrefix]
-	static void UpdatePrefix(Ability_Slomo __instance, ref bool __state, bool ___currentlyActive)
+	static FieldInfo playerField = typeof(Ability_Slomo).GetField("player", BindingFlags.Instance | BindingFlags.NonPublic)!;
+	static FieldInfo currentlyActiveField = typeof(Ability_Slomo).GetField("currentlyActive", BindingFlags.Instance | BindingFlags.NonPublic)!;
+	
+	static AbilitySlomoPatch()
 	{
-		__state = ___currentlyActive;
-	}
-
-	[HarmonyPatch("Update")]
-	[HarmonyPostfix]
-	static void UpdatePostfix(Ability_Slomo __instance, ref bool __state, bool ___currentlyActive, PlayerCharacter ___player)
-	{
-		bool currentlyActive = ___currentlyActive;
-		if (currentlyActive != __state)
+		On.Ability_Slomo.Update += (orig, self) =>
 		{
-			if (currentlyActive)
-				Mod.Events.PlayerSlowMoAbilityUsed?.Invoke(___player.player);
-			else
-				Mod.Events.PlayerSlowMoAbilityFinished?.Invoke(___player.player);
-		}
+			bool prevActive = (bool)currentlyActiveField.GetValue(self);
+			
+			orig(self);
+			
+			bool active = (bool)currentlyActiveField.GetValue(self);
+			if (active != prevActive)
+			{
+				PlayerCharacter player = (PlayerCharacter)playerField.GetValue(self);
+				if (active)
+					Mod.Events.PlayerSlowMoAbilityUsed?.Invoke(player.player);
+				else
+					Mod.Events.PlayerSlowMoAbilityFinished?.Invoke(player.player);
+			}
+		};
 	}
 }

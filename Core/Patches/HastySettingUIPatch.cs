@@ -1,49 +1,67 @@
-﻿using HarmonyLib;
+﻿using System.Reflection;
 using HastyControls.Core.Settings;
 using System.Runtime.CompilerServices;
+using Landfall.Modding;
+using MonoMod.RuntimeDetour;
 using UnityEngine;
 using UnityEngine.UI;
 using Zorro.Settings;
 
 namespace HastyControls.Core.Patches;
 
-[HarmonyPatch(typeof(SettingsUICell))]
+[LandfallPlugin]
 internal static class HastySettingUIPatch
 {
-	static AccessTools.FieldRef<SettingsUICell, CanvasGroup> canvasGroupRef = AccessTools.FieldRefAccess<SettingsUICell, CanvasGroup>("m_canvasGroup");
+	static List<Hook> hooks = new();
+	static FieldInfo m_canvasGroupField = typeof(SettingsUICell).GetField("m_canvasGroup", BindingFlags.Instance | BindingFlags.NonPublic)!;
 
-	static ConditionalWeakTable<SettingsUICell, IHastySetting> settingsMap = new();
-	static ConditionalWeakTable<SettingsUICell, LayoutElement> layoutElementMap = new();
-
-	[HarmonyPatch(nameof(SettingsUICell.Setup))]
-	[HarmonyPostfix]
-	static void SetupPostfix(SettingsUICell __instance, Setting setting)
+	static ConditionalWeakTable<SettingsUICell, CellValues> settingsMap = new();
+	
+	class CellValues(IHastySetting setting, LayoutElement layoutElement, CanvasGroup canvasGroup)
 	{
-		// SettingsUICell doesn't store the setting within itself, so we need to store it ourselves
-		// ConditionalWeakTable is a weak dictionary, so it's perfect for this situtation
-		if (setting is IHastySetting hastySetting)
-		{
-			settingsMap.Add(__instance, hastySetting);
-
-			// also add a LayoutElement so we can hide the cell
-			var layoutElement = __instance.gameObject.AddComponent<LayoutElement>();
-			layoutElementMap.Add(__instance, layoutElement);
-		}
+		public IHastySetting Setting = setting;
+		public LayoutElement LayoutElement = layoutElement;
+		public CanvasGroup CanvasGroup = canvasGroup;
+	}
+	
+	static HastySettingUIPatch()
+	{
+		hooks.Add(new(typeof(SettingsUICell).GetMethod("Setup", BindingFlags.Instance | BindingFlags.Public)!, Setup));
+		hooks.Add(new(typeof(SettingsUICell).GetMethod("Update", BindingFlags.Instance | BindingFlags.NonPublic)!, Update));
 	}
 
-	[HarmonyPatch("Update")]
-	[HarmonyPostfix]
-	static void UpdatePostfix(SettingsUICell __instance)
+	delegate void orig_Setup(SettingsUICell self, Setting setting);
+	delegate void orig_Update(SettingsUICell self);
+	
+	static void Setup(orig_Setup orig, SettingsUICell self, Setting setting)
 	{
-		if (settingsMap.TryGetValue(__instance, out var setting) && layoutElementMap.TryGetValue(__instance, out var layoutElement))
+		orig(self, setting);
+		
+		// SettingsUICell doesn't store the setting within itself, so we need to store it ourselves
+		// ConditionalWeakTable is a weak dictionary, so it's perfect for this situation
+		if (setting is IHastySetting hastySetting)
 		{
-			var canvasGroup = canvasGroupRef(__instance);
-			bool show = setting.ShowCondition?.Invoke() ?? true;
+			// also add a LayoutElement so we can hide the cell
+			LayoutElement layoutElement = self.gameObject.AddComponent<LayoutElement>();
+			CanvasGroup canvasGroup = (CanvasGroup)m_canvasGroupField.GetValue(self);
+			
+			Mod.Logger.Msg($"{self.name} | {setting.GetType()}");
+			settingsMap.Add(self, new(hastySetting, layoutElement, canvasGroup));
+		}
+	}
+	
+	static void Update(orig_Update orig, SettingsUICell self)
+	{
+		orig(self);
+		
+		if (settingsMap.TryGetValue(self, out var values))
+		{
+			bool show = values.Setting.ShowCondition?.Invoke() ?? true;
 
 			// hacky solution to hide a UI element without disabling the GameObject
-			layoutElement.ignoreLayout = !show; // skip on layout step
-			canvasGroup.blocksRaycasts = show; // ignore clicks when hidden
-			canvasGroup.alpha = show ? 1 : 0; // hide visually. has the side effect of skipping the fade in animation, which is good
+			values.LayoutElement.ignoreLayout = !show; // skip on layout step
+			values.CanvasGroup.blocksRaycasts = show; // ignore clicks when hidden
+			values.CanvasGroup.alpha = show ? 1 : 0; // hide visually. has the side effect of skipping the fade in animation, which is good
 		}
 	}
 }

@@ -1,21 +1,22 @@
-﻿using HarmonyLib;
+﻿using Landfall.Modding;
 
 namespace HastyControls.Core.Patches;
 
-[HarmonyPatch(typeof(EscapeMenu))]
+[LandfallPlugin]
 internal static class EscapeMenuPatch
 {
-	[HarmonyPatch(nameof(EscapeMenu.Close))]
-	[HarmonyPrefix]
-	static void ClosePrefix()
+	static EscapeMenuPatch()
 	{
-		Mod.Events.EscapeMenuClosed?.Invoke();
-	}
+		On.EscapeMenu.Close += (orig, self) =>
+		{
+			orig(self);
+			Mod.Events.EscapeMenuClosed?.Invoke();
+		};
 
-	[HarmonyPatch("Open")]
-	[HarmonyPrefix]
-	static void OpenPrefix()
-	{
-		Mod.Events.EscapeMenuOpened?.Invoke();
+		On.EscapeMenu.Open += (orig, self, disconnected) =>
+		{
+			orig(self, disconnected);
+			Mod.Events.EscapeMenuOpened?.Invoke();
+		};
 	}
 }

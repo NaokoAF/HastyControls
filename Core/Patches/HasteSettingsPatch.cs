@@ -1,16 +1,19 @@
-﻿using HarmonyLib;
-using HastyControls.Core.Settings;
+﻿using HastyControls.Core.Settings;
+using Landfall.Modding;
 
 namespace HastyControls.Core.Patches;
 
-[HarmonyPatch(typeof(GameHandler))]
+[LandfallPlugin]
 internal static class HasteSettingsPatch
 {
-	[HarmonyPatch("Awake")]
-	[HarmonyPostfix]
-	static void AwakePostfix(GameHandler __instance)
+	static HasteSettingsPatch()
 	{
-		Mod.Logger.Msg("Initializing HastySettings");
-		HastySettings.Initialize(__instance.SettingsHandler);
+		On.GameHandler.Awake += (orig, self) =>
+		{
+			orig(self);
+			
+			Mod.Logger.Msg("Initializing HastySettings");
+			HastySettings.Initialize(self.SettingsHandler);
+		};
 	}
 }

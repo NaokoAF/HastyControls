@@ -1,32 +1,32 @@
-﻿using HarmonyLib;
-using UnityEngine;
+﻿using System.Reflection;
+using Landfall.Modding;
 
 namespace HastyControls.Core.Patches;
 
-[HarmonyPatch(typeof(TriggerEffect))]
+[LandfallPlugin]
 internal static class BoostRingPatch
 {
-	[HarmonyPatch("OnTriggerStay")]
-	[HarmonyPrefix]
-	static void OnTriggerStayPrefix(TriggerEffect __instance, ref bool __state, bool ___used)
+	static FieldInfo usedField = typeof(TriggerEffect).GetField("used", BindingFlags.Instance | BindingFlags.NonPublic)!;
+	
+	static BoostRingPatch()
 	{
-		__state = ___used;
-	}
-
-	[HarmonyPatch("OnTriggerStay")]
-	[HarmonyPostfix]
-	static void OnTriggerStayPostfix(Collider other, TriggerEffect __instance, ref bool __state, bool ___used)
-	{
-		bool used = ___used;
-		if (used && !__state)
+		On.TriggerEffect.OnTriggerStay += (orig, self, other) =>
 		{
-			PlayerCharacter player = other.GetComponentInParent<PlayerCharacter>();
-			AddVariable_Boost? boostEffect = FindOfType<AddVariable_Boost>(__instance.effects);
-			if (player != null && boostEffect != null)
+			bool prevUsed = (bool)usedField.GetValue(self);
+			
+			orig(self, other);
+			
+			bool used = (bool)usedField.GetValue(self);
+			if (used && !prevUsed)
 			{
-				Mod.Events.PlayerBoostRingPassed?.Invoke(player.player, boostEffect.addSpeed);
+				PlayerCharacter player = other.GetComponentInParent<PlayerCharacter>();
+				AddVariable_Boost? boostEffect = FindOfType<AddVariable_Boost>(self.effects);
+				if (player != null && boostEffect != null)
+				{
+					Mod.Events.PlayerBoostRingPassed?.Invoke(player.player, boostEffect.addSpeed);
+				}
 			}
-		}
+		};
 	}
 
 	static T? FindOfType<T>(List<ItemEffect> effects)

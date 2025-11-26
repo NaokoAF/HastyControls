@@ -1,19 +1,26 @@
-﻿using HarmonyLib;
+﻿using System.Reflection;
+using Landfall.Modding;
 
 namespace HastyControls.Core.Patches;
 
-[HarmonyPatch(typeof(Ability_Fly))]
+[LandfallPlugin]
 internal static class AbilityFlyPatch
 {
-	[HarmonyPatch("Update")]
-	[HarmonyPrefix]
-	static void UpdatePrefix(Ability_Fly __instance, PlayerCharacter ___player)
+	static FieldInfo playerField = typeof(Ability_Fly).GetField("player", BindingFlags.Instance | BindingFlags.NonPublic)!;
+	
+	static AbilityFlyPatch()
 	{
-		bool ground = ___player.data.mostlyGrounded;
-		float cost = ground ? __instance.groundCost : __instance.airCost;
-		if (___player.input.abilityWasPressed && ___player.player.data.energy >= cost)
+		On.Ability_Fly.Update += (orig, self) =>
 		{
-			Mod.Events.PlayerFlyAbilityUsed?.Invoke(___player.player, ground);
-		}
+			PlayerCharacter player = (PlayerCharacter)playerField.GetValue(self);
+			bool ground = player.data.mostlyGrounded;
+			float cost = ground ? self.groundCost : self.airCost;
+			if (player.input.abilityWasPressed && player.player.data.energy >= cost)
+			{
+				Mod.Events.PlayerFlyAbilityUsed?.Invoke(player.player, ground);
+			}
+			
+			orig(self);
+		};
 	}
 }

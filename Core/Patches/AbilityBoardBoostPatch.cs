@@ -1,29 +1,29 @@
-﻿using HarmonyLib;
+﻿using System.Reflection;
+using Landfall.Modding;
 
 namespace HastyControls.Core.Patches;
 
-[HarmonyPatch(typeof(A_BoardBoost))]
+[LandfallPlugin]
 internal static class AbilityBoardBoostPatch
 {
-	[HarmonyPatch("Update")]
-	[HarmonyPrefix]
-	static void UpdatePrefix(A_BoardBoost __instance, ref bool __state, bool ___landBoosting)
+	static FieldInfo playerField = typeof(A_BoardBoost).GetField("player", BindingFlags.Instance | BindingFlags.NonPublic)!;
+	static FieldInfo landBoostingField = typeof(A_BoardBoost).GetField("landBoosting", BindingFlags.Instance | BindingFlags.NonPublic)!;
+	
+	static AbilityBoardBoostPatch()
 	{
-		__state = ___landBoosting;
-	}
-
-	[HarmonyPatch("Update")]
-	[HarmonyPostfix]
-	static void UpdatePostfix(A_BoardBoost __instance, ref bool __state, bool ___landBoosting, PlayerCharacter ___player)
-	{
-		if (___landBoosting != __state)
+		On.A_BoardBoost.Update += (orig, self) =>
 		{
-			Mod.Events.PlayerBoardBoostChanged?.Invoke(___player.player, ___landBoosting);
-		}
+			bool prevBoosting = (bool)landBoostingField.GetValue(self);
+			
+			orig(self);
 
-		if (___landBoosting)
-		{
-			Mod.Events.PlayerBoardBoosting?.Invoke(___player.player);
-		}
+			bool boosting = (bool)landBoostingField.GetValue(self);
+			PlayerCharacter player = (PlayerCharacter)playerField!.GetValue(self);
+			if (boosting != prevBoosting)
+				Mod.Events.PlayerBoardBoostChanged?.Invoke(player.player, boosting);
+
+			if (boosting)
+				Mod.Events.PlayerBoardBoosting?.Invoke(player.player);
+		};
 	}
 }

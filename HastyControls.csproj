@@ -17,9 +17,6 @@
 	<ItemGroup>
 		<!-- Game DLLs -->
 		<Reference Include="$(HasteDir)\Haste_Data\Managed\*.dll" Private="false" />
-
-		<!-- HarmonyX -->
-		<Reference Include="$(HasteDir)\..\..\workshop\content\1796470\3408901301\*.dll" Private="false" />
 	</ItemGroup>
 
 	<ItemGroup>

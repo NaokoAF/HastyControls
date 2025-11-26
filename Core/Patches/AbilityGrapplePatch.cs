@@ -1,21 +1,29 @@
-﻿using HarmonyLib;
+﻿using System.Reflection;
+using Landfall.Modding;
 
 namespace HastyControls.Core.Patches;
 
-[HarmonyPatch(typeof(Grapple))]
+[LandfallPlugin]
 internal static class AbilityGrapplePatch
 {
-	[HarmonyPatch(nameof(Grapple.Activate))]
-	[HarmonyPrefix]
-	static void ActivatePrefix(Player ___player)
+	static FieldInfo playerField = typeof(Grapple).GetField("player", BindingFlags.Instance | BindingFlags.NonPublic)!;
+	
+	static AbilityGrapplePatch()
 	{
-		Mod.Events.PlayerGrappleAbilityUsed?.Invoke(___player);
-	}
+		On.Grapple.Activate += (orig, self) =>
+		{
+			Player player = (Player)playerField.GetValue(self);
+			Mod.Events.PlayerGrappleAbilityUsed?.Invoke(player);
+			
+			orig(self);
+		};
 
-	[HarmonyPatch("EndGrapple")]
-	[HarmonyPrefix]
-	static void EndGrapplePrefix(Player ___player)
-	{
-		Mod.Events.PlayerGrappleAbilityFinished?.Invoke(___player);
+		On.Grapple.EndGrapple += (orig, self) =>
+		{
+			Player player = (Player)playerField.GetValue(self);
+			Mod.Events.PlayerGrappleAbilityFinished?.Invoke(player);
+			
+			orig(self);
+		};
 	}
 }

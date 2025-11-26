@@ -1,30 +1,31 @@
-﻿using HarmonyLib;
+﻿using Landfall.Modding;
 
 namespace HastyControls.Core.Patches;
 
-[HarmonyPatch(typeof(Player))]
+[LandfallPlugin]
 internal static class PlayerEventsPatch
 {
-	[HarmonyPatch("Awake")]
-	[HarmonyPostfix]
-	static void AwakePostfix(Player __instance)
+	static PlayerEventsPatch()
 	{
-		__instance.takeDamageAction += (damage, source, effect) => Mod.Events.PlayerDamaged?.Invoke(__instance, damage, source, effect);
-		__instance.pickUpCoinAction += () => Mod.Events.PlayerSparkPickedUp?.Invoke(__instance);
-		__instance.HealthChangedAction += (health) => Mod.Events.PlayerHealthChanged?.Invoke(__instance, health);
-	}
+		On.Player.Awake += (orig, self) =>
+		{
+			orig(self);
+			
+			self.takeDamageAction += (damage, source, effect) => Mod.Events.PlayerDamaged?.Invoke(self, damage, source, effect);
+			self.pickUpCoinAction += () => Mod.Events.PlayerSparkPickedUp?.Invoke(self);
+			self.HealthChangedAction += (health) => Mod.Events.PlayerHealthChanged?.Invoke(self, health);
+		};
+		
+		On.Player.AddResource += (orig, self, amount, source) =>
+		{
+			orig(self, amount, source);
+			Mod.Events.PlayerResourceReceived?.Invoke(self, source, amount);
+		};
 
-	[HarmonyPatch("AddResource")]
-	[HarmonyPostfix]
-	static void AddResourcePostfix(Player __instance, int amount, EffectSource source)
-	{
-		Mod.Events.PlayerResourceReceived?.Invoke(__instance, source, amount);
-	}
-
-	[HarmonyPatch("SetEnergy")]
-	[HarmonyPostfix]
-	static void SetEnergyPostfix(Player __instance)
-	{
-		Mod.Events.PlayerEnergyChanged?.Invoke(__instance, __instance.data.energy);
+		On.Player.SetEnergy += (orig, self, amount) =>
+		{
+			orig(self, amount);
+			Mod.Events.PlayerEnergyChanged?.Invoke(self, self.data.energy);
+		};
 	}
 }

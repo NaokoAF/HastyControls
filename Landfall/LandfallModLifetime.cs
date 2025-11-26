@@ -1,5 +1,4 @@
-﻿using HarmonyLib;
-using HastyControls.Core;
+﻿using HastyControls.Core;
 using HastyControls.SDL3;
 using System.Reflection;
 using UnityEngine;
@@ -19,12 +18,6 @@ public class LandfallModLifetime : MonoBehaviour
 		string sdlPath = Path.Combine(GetAssemblyDirectory(), "SDL3.dll.assetbundle");
 		logger.Msg($"Loading SDL from {sdlPath}");
 		SDL sdl = new(sdlPath);
-
-		// apply all harmony patches
-		// NOTE: specifying an assembly on PatchAll seems to cause an error
-		logger.Msg($"Applying Harmony patches with ID {ModInfo.Guid}");
-		Harmony harmony = new(ModInfo.Guid);
-		harmony.PatchAll();
 
 		logger.Msg($"Initializing mod");
 		Mod.Logger = logger;

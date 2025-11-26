@@ -1,5 +1,6 @@
-﻿using HarmonyLib;
-using HastyControls.Core.Settings;
+﻿using System.Reflection;
+using Landfall.Modding;
+using MonoMod.RuntimeDetour;
 using Zorro.ControllerSupport.Rumble;
 using static HastyControls.Core.Settings.HastySettings;
 
@@ -7,20 +8,29 @@ namespace HastyControls.Core.Patches;
 
 // replaces the way the game does rumble to go through SDL instead
 // this should allow for better controller support than what Unity normally allows for
-[HarmonyPatch(typeof(RumbleHandler))]
+[LandfallPlugin]
 internal static class RumbleHandlerPatch
 {
-	[HarmonyPatch("LateUpdate")]
-	[HarmonyPrefix]
-	static bool LateUpdatePrefix(RumbleHandler __instance, List<RumbleInstance> ___m_activeRumbleInstances)
+	static Hook hook;
+	static FieldInfo m_activeRumbleInstancesField = typeof(RumbleHandler).GetField("m_activeRumbleInstances", BindingFlags.Instance | BindingFlags.NonPublic)!;
+	
+	static RumbleHandlerPatch()
 	{
-		if (!__instance.RumbleEnabled) return false;
+		hook = new(typeof(RumbleHandler).GetMethod("LateUpdate", BindingFlags.Instance | BindingFlags.NonPublic)!, LateUpdate);
+	}
+
+	delegate void orig_LateUpdate(RumbleHandler self);
+	
+	static void LateUpdate(orig_LateUpdate orig, RumbleHandler self)
+	{
+		if (!self.RumbleEnabled) return;
 
 		// skip if legacy rumble is enabled
-		if (HastySettings.GetSetting<RumbleEnabledLegacySetting>().Value) return false;
+		if (GetSetting<RumbleEnabledLegacySetting>().Value) return;
 
 		// combine rumble values from all instances. sorted by priority
-		IOrderedEnumerable<RumbleInstance> sortedInstances = ___m_activeRumbleInstances.OrderBy((RumbleInstance instance) => instance.Priority());
+		List<RumbleInstance> activeRumbleInstances = (List<RumbleInstance>)m_activeRumbleInstancesField.GetValue(self);
+		IOrderedEnumerable<RumbleInstance> sortedInstances = activeRumbleInstances.OrderBy(instance => instance.Priority());
 		float low = 0f;
 		float high = 0f;
 		foreach (RumbleInstance instance in sortedInstances)
@@ -29,7 +39,6 @@ internal static class RumbleHandlerPatch
 		}
 
 		// apply rumble
-		Mod.ControllerManager?.ActiveController?.Rumble(low * __instance.RumbleStrength, high * __instance.RumbleStrength, 0.5f);
-		return false;
+		Mod.ControllerManager?.ActiveController?.Rumble(low * self.RumbleStrength, high * self.RumbleStrength, 0.5f);
 	}
 }

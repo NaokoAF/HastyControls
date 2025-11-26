@@ -1,36 +1,36 @@
-﻿using HarmonyLib;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
+using Landfall.Modding;
 using UnityEngine;
 using static HastyControls.Core.Settings.HastySettings;
 
 namespace HastyControls.Core.Patches;
 
-[HarmonyPatch(typeof(PlayerCharacter))]
+[LandfallPlugin]
 internal static class PlayerLookPatch
 {
-	[HarmonyPatch("SetLook")]
-	[HarmonyPrefix]
-	static bool Prefix(PlayerCharacter __instance)
+	static PlayerLookPatch()
 	{
-		if (!HasteInputSystem.CanTakeInput())
-			return false;
+		On.PlayerCharacter.SetLook += (orig, self) =>
+		{
+			if (!HasteInputSystem.CanTakeInput())
+				return;
 
-		// alter rotation
-		DoAutoLook(__instance);
-		DoGyroReset(__instance);
+			// alter rotation
+			DoAutoLook(self);
+			DoGyroReset(self);
 
-		// rotate camera and clamp
-		var data = __instance.data;
-		data.lookRotationValues.x += __instance.input.lookInput.x;
-		data.lookRotationValues.y += __instance.input.lookInput.y;
-		data.lookRotationValues.y = Mathf.Clamp(data.lookRotationValues.y, -80f, 80f);
+			// rotate camera and clamp
+			var data = self.data;
+			data.lookRotationValues.x += self.input.lookInput.x;
+			data.lookRotationValues.y += self.input.lookInput.y;
+			data.lookRotationValues.y = Mathf.Clamp(data.lookRotationValues.y, -80f, 80f);
 
-		// set helper values
-		data.lookRotationEulerAngles = new Vector3(data.lookRotationValues.y, data.lookRotationValues.x, 0f);
-		data.lookDir = Quaternion.Euler(data.lookRotationEulerAngles) * Vector3.forward;
-		return false;
+			// set helper values
+			data.lookRotationEulerAngles = new Vector3(data.lookRotationValues.y, data.lookRotationValues.x, 0f);
+			data.lookDir = Quaternion.Euler(data.lookRotationEulerAngles) * Vector3.forward;
+		};
 	}
-
+	
 	static void DoAutoLook(PlayerCharacter character)
 	{
 		var data = character.data;
@@ -39,7 +39,7 @@ internal static class PlayerLookPatch
 		var config = character.config;
 
 		// auto look
-		if (data.movementType == MovementType.Fast)
+		if (character.IsVisible && data.movementType == MovementType.Fast)
 		{
 			float horizontalSpeed = GetSetting<AutoLookHorSpeedSetting>().Value;
 			float horizontalStrength = GetSetting<AutoLookHorStrengthSetting>().Value;
