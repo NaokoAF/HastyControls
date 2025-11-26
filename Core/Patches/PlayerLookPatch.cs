@@ -66,7 +66,7 @@ internal static class PlayerLookPatch
 			{
 				float verticalBaseAngle = GetSetting<AutoLookVerBaseAngleSetting>().Value;
 				// caculate angle based on velocity's vertical direction
-				float verticalTarget = (verticalBaseAngle * 20f) - (refs.rig.velocity.normalized.y * verticalStrength * 20f);
+				float verticalTarget = (verticalBaseAngle * 20f) - (refs.rig.linearVelocity.normalized.y * verticalStrength * 20f);
 
 				// tilt the camera by a set value when holding down the fast fall button
 				if (data.fastFalling && !data.mostlyGrounded)
