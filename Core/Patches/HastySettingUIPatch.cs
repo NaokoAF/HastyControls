@@ -45,7 +45,6 @@ internal static class HastySettingUIPatch
 			LayoutElement layoutElement = self.gameObject.AddComponent<LayoutElement>();
 			CanvasGroup canvasGroup = (CanvasGroup)m_canvasGroupField.GetValue(self);
 			
-			Mod.Logger.Msg($"{self.name} | {setting.GetType()}");
 			settingsMap.Add(self, new(hastySetting, layoutElement, canvasGroup));
 		}
 	}
