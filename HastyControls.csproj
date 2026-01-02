@@ -11,7 +11,8 @@
 		<DebugType>embedded</DebugType>
 		<DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
 
-		<HasteDir Condition=" '$(HasteDir)' == '' ">C:\Program Files (x86)\Steam\steamapps\common\Haste</HasteDir>
+		<HasteDir Condition="$([MSBuild]::IsOSPlatform('Windows'))">C:\Program Files (x86)\Steam\steamapps\common\Haste</HasteDir>
+		<HasteDir Condition="$([MSBuild]::IsOSPlatform('Linux'))">$(HOME)/.steam/steam/steamapps/common/Haste</HasteDir>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -26,8 +27,13 @@
 		</None>
 	</ItemGroup>
 
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="$([MSBuild]::IsOSPlatform('Windows'))">
 		<Exec Command="COPY &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\Workshop&quot;" />
 		<Exec Command="COPY &quot;$(TargetDir)SDL3.dll&quot; &quot;$(ProjectDir)..\Workshop\SDL3.dll.assetbundle&quot;" />
+	</Target>
+	
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+		<Exec Command="cp &quot;$(TargetPath)&quot; &quot;$(ProjectDir)../Workshop&quot;" />
+		<Exec Command="cp &quot;$(TargetDir)SDL3.dll&quot; &quot;$(ProjectDir)../Workshop/SDL3.dll.assetbundle&quot;" />
 	</Target>
 </Project>
