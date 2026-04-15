@@ -194,6 +194,9 @@ public static class HastySettings
 		}
 		map.Enable();
 
+		// force unity to update its caches
+		InputHandler.Instance.PlayerInput.ActivateInput();
+
 		// add localization for action name
 		LocalizationSettings.StringDatabase.GetTable("Settings").AddEntry(actionName, name);
 
