@@ -46,8 +46,8 @@ public class GyroPauser
 		}
 		gyroPauseTime = 0f;
 
-		// pause if gyro is disabled or the window is unfocused
-		if (GetSetting<GyroSensitivitySetting>().Value == 0f || !Application.isFocused)
+		// pause if gyro is disabled
+		if (GetSetting<GyroSensitivitySetting>().Value == 0f)
 			return;
 
 		// if GyroDisableWhenWalking is enabled, disable gyro when SlowMovement is active, but re-enable when charging up fast run
