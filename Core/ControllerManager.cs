@@ -1,4 +1,5 @@
-﻿using HastyControls.SDL3;
+﻿using System.Diagnostics;
+using HastyControls.SDL3;
 using System.Numerics;
 
 namespace HastyControls.Core;
@@ -15,26 +16,37 @@ public unsafe class ControllerManager
 
 	public event Action<SDLController, Vector3>? GyroBiasCalibrated;
 
-	SDLManager sdl;
-	Vector2 gyroDelta;
-	bool gyroButtonState = true;
-	bool prevGyroButtonDown;
-	Dictionary<SDLController, GyroState> gyroStates = new();
-	SDLController? activeController;
+	private readonly SDLManager sdl;
+	private readonly SteamInputManager steamInput;
+	private Vector2 gyroDelta;
+	private bool gyroButtonState = true;
+	private bool prevGyroButtonDown;
+	private SDLController? activeController;
+	private readonly Dictionary<SDLController, GyroState> gyroStates = new();
+	private readonly GyroState[] steamGyroStates = new GyroState[SteamInputManager.MaxControllerCount];
 
-	public ControllerManager(SDLManager sdl)
+	public ControllerManager(SDLManager sdl, SteamInputManager steamInput)
 	{
 		this.sdl = sdl;
+		this.steamInput = steamInput;
 		sdl.ControllerAdded += Sdl_ControllerAdded;
 		sdl.ControllerRemoved += Sdl_ControllerRemoved;
 		sdl.ControllerSensorUpdated += Sdl_ControllerSensorUpdated;
 		sdl.ControllerButtonUpdated += Sdl_ControllerButtonUpdated;
 		sdl.ControllerAxisUpdated += Sdl_ControllerAxisUpdated;
+
+		for (int i = 0; i < steamGyroStates.Length; i++)
+			steamGyroStates[i] = new();
 	}
 
 	public void PrePoll()
 	{
 		foreach (var gyro in gyroStates.Values)
+		{
+			gyro.GyroInput.Begin();
+		}
+		
+		foreach (var gyro in steamGyroStates)
 		{
 			gyro.GyroInput.Begin();
 		}
@@ -69,6 +81,17 @@ public unsafe class ControllerManager
 				gyro.BiasCalibrationTime = 0.1f;
 
 			gyroDelta += gyro.Update(gyroActive, deltaTime);
+		}
+
+		// process and add up steam input gyro
+		for (int i = 0; i < steamInput.ControllerCount; i++)
+		{
+			SteamInputState controller = steamInput.Controllers[i];
+			GyroState gyroState = steamGyroStates[i];
+			gyroState.GyroInput.AddGyroSample(controller.Gyro, steamInput.Timestamp);
+			gyroState.GyroInput.AddAccelerometerSample(controller.Accel, steamInput.Timestamp);
+			
+			gyroDelta += gyroState.Update(gyroActive, deltaTime);
 		}
 	}
 

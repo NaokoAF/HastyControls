@@ -19,8 +19,8 @@ public static class Mod
 	public static void Initialize(SDL sdl)
 	{
 		SDL = new(sdl);
-		ControllerManager = new(SDL);
 		SteamInputManager = new();
+		ControllerManager = new(SDL, SteamInputManager);
 		Rumble = new(Events, ControllerManager);
 
 		// add logging
@@ -55,7 +55,7 @@ public static class Mod
 		if (GetSetting<GyroUseTouchpadAsModifier>().Value && ControllerManager.ActiveController != null)
 			ControllerManager.GyroButtonDown |= ControllerManager.ActiveController.IsAnyTouchpadDown();
 
-		SteamInputManager!.Update();
+		SteamInputManager!.Update(Time.unscaledDeltaTime);
 		ControllerManager.Update(Time.unscaledDeltaTime);
 	}
 
