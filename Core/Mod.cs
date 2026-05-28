@@ -12,6 +12,7 @@ public static class Mod
 	internal static HasteEvents Events = new();
 	internal static GyroPauser GyroPauser = new(Events);
 	internal static SDLManager? SDL;
+	internal static SteamInputManager? SteamInputManager;
 	internal static ControllerManager? ControllerManager;
 	internal static HasteRumble? Rumble;
 
@@ -19,6 +20,7 @@ public static class Mod
 	{
 		SDL = new(sdl);
 		ControllerManager = new(SDL);
+		SteamInputManager = new();
 		Rumble = new(Events, ControllerManager);
 
 		// add logging
@@ -28,7 +30,7 @@ public static class Mod
 
 		// update config
 		UpdateConfig();
-		HastySettings.GetSetting<HastySettings.GamepadDeadzonesSetting>().Applied += (_) => UpdateConfig();
+		GetSetting<GamepadDeadzonesSetting>().Applied += (_) => UpdateConfig();
 
 		// initialize SDL
 		Logger.Msg($"SDL {SDL.Version.Major}.{SDL.Version.Minor}.{SDL.Version.Micro} ({SDL.Revision})");
@@ -53,12 +55,14 @@ public static class Mod
 		if (GetSetting<GyroUseTouchpadAsModifier>().Value && ControllerManager.ActiveController != null)
 			ControllerManager.GyroButtonDown |= ControllerManager.ActiveController.IsAnyTouchpadDown();
 
+		SteamInputManager!.Update();
 		ControllerManager.Update(Time.unscaledDeltaTime);
 	}
 
 	public static void Deinitialize()
 	{
 		SDL!.Quit();
+		SteamInputManager!.Dispose();
 	}
 
 	static void UpdateConfig()
