@@ -13,7 +13,7 @@ class GyroState
 
 	public event Action<Vector3>? BiasCalibrated;
 
-	GyroSpace currentGyroSpace = GyroSpace.LocalYaw;
+	GyroSpace? currentGyroSpace = null;
 
 	public Vector2 Update(bool active, float deltaTime)
 	{
