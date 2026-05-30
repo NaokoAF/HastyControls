@@ -86,7 +86,7 @@ public unsafe class SDLManager
 
 		SDLController controller = new(sdl, id, gamepad);
 		if (controller.HasGyro)
-			controller.SetGyroEnabled(controller.HasGyro);
+			controller.SetGyroEnabled(true);
 
 		// add to dictionary and raise event
 		controllers.Add(id, controller);

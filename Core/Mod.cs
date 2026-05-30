@@ -31,6 +31,12 @@ public static class Mod
 		// update config
 		UpdateConfig();
 		GetSetting<GamepadDeadzonesSetting>().Applied += (_) => UpdateConfig();
+		
+		// some controllers can disable their gyro at the firmware level
+		// other programs (notably steam) can interact with this and stop us from reading gyro data
+		// as a workaround, we toggle gyro off and back on when pausing or alt-tabbing
+		Events.EscapeMenuToggled += _ => ControllerManager.ForceEnableGyro();
+		Application.focusChanged += _ => ControllerManager.ForceEnableGyro();
 
 		// initialize SDL
 		Logger.Msg($"SDL {SDL.Version.Major}.{SDL.Version.Minor}.{SDL.Version.Micro} ({SDL.Revision})");

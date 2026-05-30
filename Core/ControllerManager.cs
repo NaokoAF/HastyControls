@@ -95,6 +95,17 @@ public unsafe class ControllerManager
 		}
 	}
 
+	public void ForceEnableGyro()
+	{
+		foreach (var controller in gyroStates.Keys)
+		{
+			// SDL caches the previous sensor enabled value
+			// set to false first to force it to be enabled
+			controller.SetGyroEnabled(false);
+			controller.SetGyroEnabled(true);
+		}
+	}
+
 	private void Sdl_ControllerAdded(SDLController controller)
 	{
 		if (controller.HasGyro)
