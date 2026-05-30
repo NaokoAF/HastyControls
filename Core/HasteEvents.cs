@@ -22,6 +22,5 @@ public class HasteEvents
 	public Action<Player, float>? PlayerEnergyChanged;
 	public Action<Player, float>? PlayerBoostRingPassed;
 
-	public Action? EscapeMenuOpened;
-	public Action? EscapeMenuClosed;
+	public Action<bool>? EscapeMenuToggled;
 }

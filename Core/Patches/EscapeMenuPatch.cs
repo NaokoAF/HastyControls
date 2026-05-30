@@ -10,13 +10,13 @@ internal static class EscapeMenuPatch
 		On.EscapeMenu.Close += (orig, self) =>
 		{
 			orig(self);
-			Mod.Events.EscapeMenuClosed?.Invoke();
+			Mod.Events.EscapeMenuToggled?.Invoke(false);
 		};
 
 		On.EscapeMenu.Open += (orig, self, disconnected) =>
 		{
 			orig(self, disconnected);
-			Mod.Events.EscapeMenuOpened?.Invoke();
+			Mod.Events.EscapeMenuToggled?.Invoke(true);
 		};
 	}
 }
