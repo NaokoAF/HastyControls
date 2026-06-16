@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using HastyControls.SDL3;
 using System.Numerics;
+using Steamworks;
 
 namespace HastyControls.Core;
 
@@ -25,6 +26,13 @@ public unsafe class ControllerManager
 	private readonly Dictionary<SDLController, GyroState> gyroStates = new();
 	private readonly GyroState[] steamGyroStates = new GyroState[SteamInputManager.MaxControllerCount];
 
+	private static readonly Dictionary<(ushort, ushort), GyroOrientation> DefaultOrientationMap = new()
+	{
+		{ (0x28de, 0x1205), GyroOrientation.Deck }, // Steam Deck
+		{ (0x0b05, 0x1abe), GyroOrientation.Ally }, // ROG Ally
+		{ (0x0b05, 0x1b4c), GyroOrientation.Ally }, // ROG Ally X
+	};
+	
 	public ControllerManager(SDLManager sdl, SteamInputManager steamInput)
 	{
 		this.sdl = sdl;
@@ -45,7 +53,7 @@ public unsafe class ControllerManager
 		{
 			gyro.GyroInput.Begin();
 		}
-		
+
 		foreach (var gyro in steamGyroStates)
 		{
 			gyro.GyroInput.Begin();
@@ -68,6 +76,7 @@ public unsafe class ControllerManager
 				{
 					gyroButtonState = !gyroButtonState;
 				}
+
 				prevGyroButtonDown = GyroButtonDown;
 				break;
 		}
@@ -90,7 +99,10 @@ public unsafe class ControllerManager
 			GyroState gyroState = steamGyroStates[i];
 			gyroState.GyroInput.AddGyroSample(controller.Gyro, steamInput.Timestamp);
 			gyroState.GyroInput.AddAccelerometerSample(controller.Accel, steamInput.Timestamp);
-			
+			gyroState.DefaultOrientation = controller.Type == ESteamInputType.k_ESteamInputType_SteamDeckController
+				? GyroOrientation.Deck
+				: GyroOrientation.Normal;
+
 			gyroDelta += gyroState.Update(gyroActive, deltaTime);
 		}
 	}
@@ -113,6 +125,9 @@ public unsafe class ControllerManager
 			GyroState gyro = new();
 			gyro.BiasCalibrationTime = 1f; // calibrate once added
 			gyro.BiasCalibrated += bias => GyroBiasCalibrated?.Invoke(controller, bias);
+			if (DefaultOrientationMap.TryGetValue((controller.VendorId, controller.ProductId), out var orientation))
+				gyro.DefaultOrientation = orientation;
+			
 			gyroStates.Add(controller, gyro);
 		}
 
