@@ -13,6 +13,7 @@ public static class HastySettings
 {
 	const string Category = ModInfo.Name;
 	static readonly IEnumerable<string> GyroSpaceChoices = ["Local Yaw", "Local Roll", "Player Turn", "Player Lean"];
+	static readonly IEnumerable<string> GyroOrientationChoices = ["Auto", "Normal", "Steam Deck", "ROG Ally"];
 	static readonly IEnumerable<string> GyroButtonModeChoices = ["Disable while held", "Enable while held", "Toggle when pressed", "Recenter when pressed", "Recenter and disable while held"];
 
 	public class GeneralCollapsibleSetting() : HastyCollapsibleSetting(Category, "General Settings", "");
@@ -29,6 +30,7 @@ public static class HastySettings
 	public class GyroSensitivityRatioSetting() : HastyFloatSetting(Category, "Gyro Sensitivity Ratio", "Vertical sensitivity multiplier. 0.75 means vertical sensitivity is 75% slower than horizontal.", 0f, 5f, 0.75f);
 	public class GyroDisableWhenWalkingSetting() : HastyBoolSetting(Category, "Gyro Disable when Walking", "Disable gyro while slow walking.", false);
 	public class GyroSpaceSetting() : HastyEnumSetting<GyroSpace>(Category, "Gyro Space", "Algorithm used to convert real world movements to the in game camera.", GyroSpace.PlayerTurn, GyroSpaceChoices);
+	public class GyroOrientationSetting() : HastyEnumSetting<GyroOrientation>(Category, "Gyro Orientation", "(Experimental) Fixes devices with unusual orientations. Try changing Gyro Space before this.", GyroOrientation.Auto, GyroOrientationChoices);
 	public class GyroButtonModeSetting() : HastyEnumSetting<GyroButtonMode>(Category, "Gyro Modifier Mode", "Behavior of gyro modifier button.", GyroButtonMode.Off, GyroButtonModeChoices);
 	public class GyroUseTouchpadAsModifier() : HastyBoolSetting(Category, "Gyro Use Touchpad as Modifier", "Interpret touchpad touches as an additional gyro modifier button.", true);
 	public class GyroTighteningSetting() : HastyFloatSetting(Category, "Gyro Tightening", "Soft gyro deadzone to reduce the effects of shaky hands.", 0f, 15f, 3f);
@@ -99,6 +101,7 @@ public static class HastySettings
 		Add<GyroSmoothingTimeSetting>(gyro);
 		Add<GyroInvertXSetting>(gyro);
 		Add<GyroInvertYSetting>(gyro);
+		Add<GyroOrientationSetting>(gyro);
 
 		var autolook = Add<AutoLookCollapsibleSetting>();
 		Add<AutoLookHorSpeedSetting>(autolook);
