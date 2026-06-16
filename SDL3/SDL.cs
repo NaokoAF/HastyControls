@@ -36,6 +36,8 @@ public unsafe partial class SDL : IDisposable
 
 		// SDL_joystick
 		UpdateJoysticks = GetFunction<SDL_UpdateJoysticks>();
+		GetJoystickVendorForID = GetFunction<SDL_GetJoystickVendorForID>();
+		GetJoystickProductForID = GetFunction<SDL_GetJoystickProductForID>();
 
 		// SDL_gamepad
 		OpenGamepad = GetFunction<SDL_OpenGamepad>();

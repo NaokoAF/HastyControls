@@ -10,6 +10,8 @@ public unsafe class SDLController
 	public SDL_Joystick* Joystick { get; }
 
 	public string? Name { get; }
+	public ushort VendorId { get; }
+	public ushort ProductId { get; }
 	public bool HasGyro { get; }
 	public SDL_GamepadType GamepadType { get; }
 
@@ -34,6 +36,8 @@ public unsafe class SDLController
 		Gamepad = gamepad;
 
 		Name = sdl.PtrToStringUTF8(sdl.GetGamepadName(Gamepad));
+		VendorId = sdl.GetJoystickVendorForID(id);
+		ProductId = sdl.GetJoystickProductForID(id);
 		HasGyro = sdl.GamepadHasSensor(Gamepad, SDL_SensorType.SDL_SENSOR_GYRO);
 		Joystick = sdl.GetGamepadJoystick(gamepad);
 		GamepadType = sdl.GetGamepadType(gamepad);
