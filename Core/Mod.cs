@@ -24,9 +24,9 @@ public static class Mod
 		Rumble = new(Events, ControllerManager);
 
 		// add logging
-		SDL.ControllerAdded += controller => Logger.Msg($"Controller {controller.Id} added - {controller.Name} (Gyro: {controller.HasGyro})");
-		SDL.ControllerRemoved += controller => Logger.Msg($"Controller {controller.Id} removed - {controller.Name}");
-		ControllerManager.GyroBiasCalibrated += (controller, bias) => Logger.Msg($"Controller {controller.Id} calibrated - {controller.Name} (Bias: {bias})");
+		SDL.ControllerAdded += controller => Logger.Msg($"Controller added - {GetControllerName(controller)} (Gyro: {controller.HasGyro})");
+		SDL.ControllerRemoved += controller => Logger.Msg($"Controller removed - {GetControllerName(controller)}");
+		ControllerManager.GyroBiasCalibrated += (controller, bias) => Logger.Msg($"Controller calibrated - {GetControllerName(controller)} (Bias: {bias})");
 
 		// update config
 		UpdateConfig();
@@ -71,6 +71,8 @@ public static class Mod
 		SteamInputManager!.Dispose();
 	}
 
+	static string GetControllerName(SDLController controller) => $"{controller.VendorId:x4}:{controller.ProductId:x4} {controller.Name}";
+	
 	static void UpdateConfig()
 	{
 		InputSystem.settings.defaultDeadzoneMin = GetSetting<GamepadDeadzonesSetting>().Value;
