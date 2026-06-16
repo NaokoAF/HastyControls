@@ -36,10 +36,11 @@ public class SteamInputManager : IDisposable
 		{
 			InputHandle_t handle = handles[i];
 			InputMotionData_t motionData = SteamInput.GetMotionData(handle);
+			ESteamInputType type = SteamInput.GetInputTypeForHandle(handle);
 
 			Vector3 gyro = new Vector3(motionData.rotVelX, motionData.rotVelZ, motionData.rotVelY) * GyroScale;
 			Vector3 accel = new Vector3(motionData.posAccelX, motionData.posAccelZ, -motionData.posAccelY) * AccelScale;
-			SteamInputState state = new(handle, gyro, accel);
+			SteamInputState state = new(handle, type, gyro, accel);
 			states[i] = state;
 		}
 	}
