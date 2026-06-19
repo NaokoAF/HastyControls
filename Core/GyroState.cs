@@ -78,7 +78,7 @@ class GyroState
 	static Vector3 ApplyOrientation(Vector3 vector, GyroOrientation orientation) => orientation switch
 	{
 		GyroOrientation.Deck => new(vector.X, -vector.Z, vector.Y),
-		GyroOrientation.Ally => new(vector.Z, vector.X, vector.Y),
+		GyroOrientation.Ally => new(-vector.Z, -vector.X, vector.Y),
 		_ => vector,
 	};
 }
