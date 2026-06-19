@@ -16,6 +16,7 @@ public unsafe class ControllerManager
 	public SDLController? ActiveController => activeController;
 
 	public event Action<SDLController, Vector3>? GyroBiasCalibrated;
+	public event Action<SDLController, GyroOrientation>? GyroOrientationChanged;
 
 	private readonly SDLManager sdl;
 	private readonly SteamInputManager steamInput;
@@ -121,6 +122,7 @@ public unsafe class ControllerManager
 			if (DefaultOrientationMap.TryGetValue((controller.VendorId, controller.ProductId), out var orientation))
 			{
 				gyro.DefaultOrientation = orientation;
+				GyroOrientationChanged?.Invoke(controller, orientation);
 			}
 
 			gyroStates.Add(controller, gyro);

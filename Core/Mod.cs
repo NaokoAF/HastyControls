@@ -23,15 +23,20 @@ public static class Mod
 		ControllerManager = new(SDL, SteamInputManager);
 		Rumble = new(Events, ControllerManager);
 
-		// add logging
-		SDL.ControllerAdded += controller => Logger.Msg($"Controller added - {GetControllerName(controller)} (Gyro: {controller.HasGyro})");
-		SDL.ControllerRemoved += controller => Logger.Msg($"Controller removed - {GetControllerName(controller)}");
-		ControllerManager.GyroBiasCalibrated += (controller, bias) => Logger.Msg($"Controller calibrated - {GetControllerName(controller)} (Bias: {bias})");
+		// logging
+		SDL.ControllerAdded += controller =>
+			Logger.Msg($"Controller added - {GetControllerName(controller)}");
+		SDL.ControllerRemoved += controller =>
+			Logger.Msg($"Controller removed - {GetControllerName(controller)}");
+		ControllerManager.GyroBiasCalibrated += (controller, bias) =>
+			Logger.Msg($"Controller calibrated - {GetControllerName(controller)} (Bias: {bias})");
+		ControllerManager.GyroOrientationChanged += (controller, orientation) =>
+			Logger.Msg($"Controller orientation changed - {GetControllerName(controller)} (Orientation: {orientation})");
 
 		// update config
 		UpdateConfig();
 		GetSetting<GamepadDeadzonesSetting>().Applied += (_) => UpdateConfig();
-		
+
 		// some controllers can disable their gyro at the firmware level
 		// other programs (notably steam) can interact with this and stop us from reading gyro data
 		// as a workaround, we toggle gyro off and back on when pausing or alt-tabbing
@@ -71,8 +76,14 @@ public static class Mod
 		SteamInputManager!.Dispose();
 	}
 
-	static string GetControllerName(SDLController controller) => $"{controller.VendorId:x4}:{controller.ProductId:x4} {controller.Name}";
-	
+	static string GetControllerName(SDLController controller)
+	{
+		string str = $"{controller.VendorId:x4}:{controller.ProductId:x4} {controller.Name}";
+		if (controller.SteamHandle != 0) return $"{str} [Steam Input]";
+		if (controller.HasGyro) return $"{str} [No Gyro]";
+		return str;
+	}
+
 	static void UpdateConfig()
 	{
 		InputSystem.settings.defaultDeadzoneMin = GetSetting<GamepadDeadzonesSetting>().Value;
