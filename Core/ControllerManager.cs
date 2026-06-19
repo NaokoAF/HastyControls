@@ -24,7 +24,6 @@ public unsafe class ControllerManager
 	private bool prevGyroButtonDown;
 	private SDLController? activeController;
 	private readonly Dictionary<SDLController, GyroState> gyroStates = new();
-	private readonly GyroState[] steamGyroStates = new GyroState[SteamInputManager.MaxControllerCount];
 
 	private static readonly Dictionary<(ushort, ushort), GyroOrientation> DefaultOrientationMap = new()
 	{
@@ -32,7 +31,7 @@ public unsafe class ControllerManager
 		{ (0x0b05, 0x1abe), GyroOrientation.Ally }, // ROG Ally
 		{ (0x0b05, 0x1b4c), GyroOrientation.Ally }, // ROG Ally X
 	};
-	
+
 	public ControllerManager(SDLManager sdl, SteamInputManager steamInput)
 	{
 		this.sdl = sdl;
@@ -42,19 +41,11 @@ public unsafe class ControllerManager
 		sdl.ControllerSensorUpdated += Sdl_ControllerSensorUpdated;
 		sdl.ControllerButtonUpdated += Sdl_ControllerButtonUpdated;
 		sdl.ControllerAxisUpdated += Sdl_ControllerAxisUpdated;
-
-		for (int i = 0; i < steamGyroStates.Length; i++)
-			steamGyroStates[i] = new();
 	}
 
 	public void PrePoll()
 	{
 		foreach (var gyro in gyroStates.Values)
-		{
-			gyro.GyroInput.Begin();
-		}
-
-		foreach (var gyro in steamGyroStates)
 		{
 			gyro.GyroInput.Begin();
 		}
@@ -84,26 +75,21 @@ public unsafe class ControllerManager
 		// add up gyro on all controllers
 		gyroDelta = Vector2.Zero;
 		bool gyroActive = gyroButtonState && !GyroPaused;
-		foreach (var gyro in gyroStates.Values)
+		foreach ((SDLController controller, GyroState gyro) in gyroStates)
 		{
-			if (GyroCalibrateButtonDown)
-				gyro.BiasCalibrationTime = 0.1f;
+			// add steam input gyro
+			if (steamInput.TryGetState(controller, out var steamGyro, out var steamAccel))
+			{
+				gyro.GyroInput.AddGyroSample(steamGyro, steamInput.Timestamp);
+				gyro.GyroInput.AddAccelerometerSample(steamAccel, steamInput.Timestamp);
+			}
+			else
+			{
+				if (GyroCalibrateButtonDown)
+					gyro.BiasCalibrationTime = 0.1f;
+			}
 
 			gyroDelta += gyro.Update(gyroActive, deltaTime);
-		}
-
-		// process and add up steam input gyro
-		for (int i = 0; i < steamInput.ControllerCount; i++)
-		{
-			SteamInputState controller = steamInput.Controllers[i];
-			GyroState gyroState = steamGyroStates[i];
-			gyroState.GyroInput.AddGyroSample(controller.Gyro, steamInput.Timestamp);
-			gyroState.GyroInput.AddAccelerometerSample(controller.Accel, steamInput.Timestamp);
-			gyroState.DefaultOrientation = controller.Type == ESteamInputType.k_ESteamInputType_SteamDeckController
-				? GyroOrientation.Deck
-				: GyroOrientation.Normal;
-
-			gyroDelta += gyroState.Update(gyroActive, deltaTime);
 		}
 	}
 
@@ -120,14 +106,23 @@ public unsafe class ControllerManager
 
 	private void Sdl_ControllerAdded(SDLController controller)
 	{
-		if (controller.HasGyro)
+		bool isSteamInput = controller.SteamHandle != 0;
+		if (controller.HasGyro || isSteamInput)
 		{
 			GyroState gyro = new();
-			gyro.BiasCalibrationTime = 1f; // calibrate once added
-			gyro.BiasCalibrated += bias => GyroBiasCalibrated?.Invoke(controller, bias);
+
+			// calibrate once added. ignore steam input, as it handles calibration itself
+			if (!isSteamInput)
+			{
+				gyro.BiasCalibrationTime = 1f;
+				gyro.BiasCalibrated += bias => GyroBiasCalibrated?.Invoke(controller, bias);
+			}
+
 			if (DefaultOrientationMap.TryGetValue((controller.VendorId, controller.ProductId), out var orientation))
+			{
 				gyro.DefaultOrientation = orientation;
-			
+			}
+
 			gyroStates.Add(controller, gyro);
 		}
 
