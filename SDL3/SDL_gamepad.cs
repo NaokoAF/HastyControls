@@ -86,6 +86,7 @@ public unsafe partial class SDL
 	public delegate SDLBool SDL_RumbleGamepadTriggers(SDL_Gamepad* gamepad, ushort left_rumble, ushort right_rumble, uint duration_ms);
 	public delegate SDLBool SDL_SetGamepadLED(SDL_Gamepad* gamepad, byte red, byte green, byte blue);
 	public delegate void SDL_CloseGamepad(SDL_Gamepad* gamepad);
+	public delegate ulong SDL_GetGamepadSteamHandle(SDL_Gamepad* gamepad);
 
 	public SDL_OpenGamepad OpenGamepad;
 	public SDL_GetGamepadID GetGamepadID;
@@ -107,4 +108,5 @@ public unsafe partial class SDL
 	public SDL_RumbleGamepadTriggers RumbleGamepadTriggers;
 	public SDL_SetGamepadLED SetGamepadLED;
 	public SDL_CloseGamepad CloseGamepad;
+	public SDL_GetGamepadSteamHandle GetGamepadSteamHandle;
 }

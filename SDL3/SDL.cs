@@ -60,6 +60,7 @@ public unsafe partial class SDL : IDisposable
 		RumbleGamepadTriggers = GetFunction<SDL_RumbleGamepadTriggers>();
 		SetGamepadLED = GetFunction<SDL_SetGamepadLED>();
 		CloseGamepad = GetFunction<SDL_CloseGamepad>();
+		GetGamepadSteamHandle = GetFunction<SDL_GetGamepadSteamHandle>();
 
 		// SDL_sensor
 		GetSensors = GetFunction<SDL_GetSensors>();
