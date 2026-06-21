@@ -1,22 +1,19 @@
-﻿using Landfall.Modding;
+﻿namespace HastyControls.Core.Patches;
 
-namespace HastyControls.Core.Patches;
-
-[LandfallPlugin]
-internal static class EscapeMenuPatch
+internal class EscapeMenuPatch : IHastyPatch
 {
-	static EscapeMenuPatch()
+	public void Patch(HastyControlsMod mod)
 	{
 		On.EscapeMenu.Close += (orig, self) =>
 		{
 			orig(self);
-			Mod.Events.EscapeMenuToggled?.Invoke(false);
+			mod.Events.EscapeMenuToggled?.Invoke(false);
 		};
 
 		On.EscapeMenu.Open += (orig, self, disconnected) =>
 		{
 			orig(self, disconnected);
-			Mod.Events.EscapeMenuToggled?.Invoke(true);
+			mod.Events.EscapeMenuToggled?.Invoke(true);
 		};
 	}
 }

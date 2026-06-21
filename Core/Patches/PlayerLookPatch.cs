@@ -1,15 +1,22 @@
 ﻿using System.Runtime.CompilerServices;
-using Landfall.Modding;
 using UnityEngine;
 using static HastyControls.Core.Settings.HastySettings;
 
 namespace HastyControls.Core.Patches;
 
-[LandfallPlugin]
-internal static class PlayerLookPatch
+internal class PlayerLookPatch : IHastyPatch
 {
-	static PlayerLookPatch()
+	HastyControlsMod? mod;
+	
+	bool gyroResetPrevButtonDown;
+	float gyroResetT;
+	Vector2 gyroResetAngle;
+	Vector2 gyroResetPrevAngle;
+	
+	public void Patch(HastyControlsMod mod)
 	{
+		this.mod = mod;
+		
 		On.PlayerCharacter.SetLook += (orig, self) =>
 		{
 			if (!HasteInputSystem.CanTakeInput())
@@ -31,7 +38,7 @@ internal static class PlayerLookPatch
 		};
 	}
 	
-	static void DoAutoLook(PlayerCharacter character)
+	private void DoAutoLook(PlayerCharacter character)
 	{
 		var data = character.data;
 		var input = character.input;
@@ -78,12 +85,7 @@ internal static class PlayerLookPatch
 		}
 	}
 
-	static bool gyroResetPrevButtonDown;
-	static float gyroResetT;
-	static Vector2 gyroResetAngle;
-	static Vector2 gyroResetPrevAngle;
-
-	static void DoGyroReset(PlayerCharacter character)
+	private void DoGyroReset(PlayerCharacter character)
 	{
 		GyroButtonMode mode = GetSetting<GyroButtonModeSetting>().Value;
 		if (mode != GyroButtonMode.Recenter && mode != GyroButtonMode.RecenterAndOff)
@@ -92,7 +94,7 @@ internal static class PlayerLookPatch
 		var data = character.data;
 
 		// activate
-		bool gyroButtonDown = Mod.ControllerManager!.GyroButtonDown;
+		bool gyroButtonDown = mod!.ControllerManager!.GyroButtonDown;
 		if (gyroButtonDown && !gyroResetPrevButtonDown)
 		{
 			gyroResetT = 1f;
@@ -129,7 +131,7 @@ internal static class PlayerLookPatch
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	static float EaseOutCubic(float t)
+	private static float EaseOutCubic(float t)
 	{
 		t -= 1f;
 		return 1 + t * t * t;

@@ -1,12 +1,10 @@
-﻿using Landfall.Modding;
-using Unity.Mathematics;
+﻿using Unity.Mathematics;
 
 namespace HastyControls.Core.Patches;
 
-[LandfallPlugin]
-internal static class GamepadSensitivitySettingPatch
+internal class GamepadSensitivitySettingPatch : IHastyPatch
 {
-	static GamepadSensitivitySettingPatch()
+	public void Patch(HastyControlsMod mod)
 	{
 		On.GamepadSensitivitySetting.GetMinMaxValue += (orig, self) =>
 		{

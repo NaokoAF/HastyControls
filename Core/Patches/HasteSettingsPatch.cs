@@ -1,18 +1,16 @@
 ﻿using HastyControls.Core.Settings;
-using Landfall.Modding;
 
 namespace HastyControls.Core.Patches;
 
-[LandfallPlugin]
-internal static class HasteSettingsPatch
+internal class HasteSettingsPatch : IHastyPatch
 {
-	static HasteSettingsPatch()
+	public void Patch(HastyControlsMod mod)
 	{
 		On.GameHandler.Awake += (orig, self) =>
 		{
 			orig(self);
 			
-			Mod.Logger.Msg("Initializing HastySettings");
+			mod.Logger.Msg("Initializing HastySettings");
 			HastySettings.Initialize(self.SettingsHandler);
 		};
 	}

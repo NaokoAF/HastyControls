@@ -1,14 +1,12 @@
 ﻿using System.Reflection;
-using Landfall.Modding;
 
 namespace HastyControls.Core.Patches;
 
-[LandfallPlugin]
-internal static class BoostRingPatch
+internal class BoostRingPatch : IHastyPatch
 {
 	static FieldInfo usedField = typeof(TriggerEffect).GetField("used", BindingFlags.Instance | BindingFlags.NonPublic)!;
 	
-	static BoostRingPatch()
+	public void Patch(HastyControlsMod mod)
 	{
 		On.TriggerEffect.OnTriggerStay += (orig, self, other) =>
 		{
@@ -23,7 +21,7 @@ internal static class BoostRingPatch
 				AddVariable_Boost? boostEffect = FindOfType<AddVariable_Boost>(self.effects);
 				if (player != null && boostEffect != null)
 				{
-					Mod.Events.PlayerBoostRingPassed?.Invoke(player.player, boostEffect.addSpeed);
+					mod.Events.PlayerBoostRingPassed?.Invoke(player.player, boostEffect.addSpeed);
 				}
 			}
 		};

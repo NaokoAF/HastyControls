@@ -1,12 +1,10 @@
-﻿using Landfall.Modding;
-using static HastyControls.Core.Settings.HastySettings;
+﻿using static HastyControls.Core.Settings.HastySettings;
 
 namespace HastyControls.Core.Patches;
 
-[LandfallPlugin]
-internal static class DisableAbilitiesInSafeAreasPatch
+internal class DisableAbilitiesInSafeAreasPatch : IHastyPatch
 {
-	static DisableAbilitiesInSafeAreasPatch()
+	public void Patch(HastyControlsMod mod)
 	{
 		On.PlayerCharacter.PlayerInput.SampleInput += (orig, self, character, autoRun) =>
 		{

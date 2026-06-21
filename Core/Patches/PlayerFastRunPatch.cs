@@ -1,15 +1,13 @@
 ﻿using System.Reflection;
-using Landfall.Modding;
 
 namespace HastyControls.Core.Patches;
 
-[LandfallPlugin]
-internal static class PlayerFastRunPatch
+internal class PlayerFastRunPatch : IHastyPatch
 {
 	static FieldInfo playerField = typeof(PlayerSlowMovement).GetField("player", BindingFlags.Instance | BindingFlags.NonPublic)!;
 	static FieldInfo chargeCounterField = typeof(PlayerSlowMovement).GetField("chargeCounter", BindingFlags.Instance | BindingFlags.NonPublic)!;
 	
-	static PlayerFastRunPatch()
+	public void Patch(HastyControlsMod mod)
 	{
 		On.PlayerSlowMovement.CheckMode += (orig, self) =>
 		{
@@ -24,13 +22,13 @@ internal static class PlayerFastRunPatch
 			bool wasCharging = prevChargeCounter > 0f;
 			if (charging != wasCharging)
 			{
-				Mod.Events.PlayerChargingChanged?.Invoke(player.player, charging);
+				mod.Events.PlayerChargingChanged?.Invoke(player.player, charging);
 			}
 
 			if (charging)
 			{
 				bool chargingUp = chargeCounter >= prevChargeCounter;
-				Mod.Events.PlayerCharging?.Invoke(player.player, chargeCounter, chargingUp);
+				mod.Events.PlayerCharging?.Invoke(player.player, chargeCounter, chargingUp);
 			}
 		};
 		
@@ -39,7 +37,7 @@ internal static class PlayerFastRunPatch
 			orig(self);
 			
 			PlayerCharacter player = (PlayerCharacter)playerField.GetValue(self);
-			Mod.Events.PlayerChargingEnded?.Invoke(player.player);
+			mod.Events.PlayerChargingEnded?.Invoke(player.player);
 		};
 	}
 }

@@ -1,18 +1,15 @@
-﻿using System.Reflection;
-using Landfall.Modding;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 using static HastyControls.Core.Settings.HastySettings;
 
 namespace HastyControls.Core.Patches;
 
-[LandfallPlugin]
-internal static class LookInputPatch
+internal class LookInputPatch : IHastyPatch
 {
-	private static MouseSensitivitySetting? mouseSensitivitySetting;
-	private static GamepadSensitivitySetting? gamepadSensitivitySetting;
+	private MouseSensitivitySetting? mouseSensitivitySetting;
+	private GamepadSensitivitySetting? gamepadSensitivitySetting;
 	
-	static LookInputPatch()
+	public void Patch(HastyControlsMod mod)
 	{
 		On.PlayerCharacter.PlayerInput.SampleInput += (orig, self, character, autoRun) =>
 		{
@@ -46,10 +43,10 @@ internal static class LookInputPatch
 				lookInput *= mouseSensitivitySetting.Value;
 			}
 
-			if (GetSetting<GyroSensitivitySetting>().Value != 0f && Mod.ControllerManager != null)
+			if (GetSetting<GyroSensitivitySetting>().Value != 0f)
 			{
 				// apply gyro
-				var gyro = Mod.ControllerManager.GyroDelta * Mathf.Rad2Deg;
+				var gyro = mod.ControllerManager.GyroDelta * Mathf.Rad2Deg;
 				(gyro.X, gyro.Y) = (gyro.Y, gyro.X); // swap axes
 
 				gyro *= GetSetting<GyroSensitivitySetting>().Value;

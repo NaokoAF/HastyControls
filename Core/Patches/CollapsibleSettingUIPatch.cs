@@ -1,18 +1,16 @@
 ﻿using System.Reflection;
 using HastyControls.Core.Settings;
-using Landfall.Modding;
 using MonoMod.RuntimeDetour;
 using Zorro.Settings;
 using Zorro.Settings.UI;
 
 namespace HastyControls.Core.Patches;
 
-[LandfallPlugin]
-internal static class CollapsibleSettingUIPatch
+internal class CollapsibleSettingUIPatch : IHastyPatch
 {
-	static Hook hook;
+	Hook? hook;
 	
-	static CollapsibleSettingUIPatch()
+	public void Patch(HastyControlsMod mod)
 	{
 		hook = new(typeof(ButtonSettingUI).GetMethod("Setup", BindingFlags.Instance | BindingFlags.Public)!, Setup);
 	}

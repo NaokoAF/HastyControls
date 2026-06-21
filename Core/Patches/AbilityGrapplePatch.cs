@@ -1,19 +1,17 @@
 ﻿using System.Reflection;
-using Landfall.Modding;
 
 namespace HastyControls.Core.Patches;
 
-[LandfallPlugin]
-internal static class AbilityGrapplePatch
+internal class AbilityGrapplePatch : IHastyPatch
 {
 	static FieldInfo playerField = typeof(Grapple).GetField("player", BindingFlags.Instance | BindingFlags.NonPublic)!;
 	
-	static AbilityGrapplePatch()
+	public void Patch(HastyControlsMod mod)
 	{
 		On.Grapple.Activate += (orig, self) =>
 		{
 			Player player = (Player)playerField.GetValue(self);
-			Mod.Events.PlayerGrappleAbilityUsed?.Invoke(player);
+			mod.Events.PlayerGrappleAbilityUsed?.Invoke(player);
 			
 			orig(self);
 		};
@@ -21,7 +19,7 @@ internal static class AbilityGrapplePatch
 		On.Grapple.EndGrapple += (orig, self) =>
 		{
 			Player player = (Player)playerField.GetValue(self);
-			Mod.Events.PlayerGrappleAbilityFinished?.Invoke(player);
+			mod.Events.PlayerGrappleAbilityFinished?.Invoke(player);
 			
 			orig(self);
 		};

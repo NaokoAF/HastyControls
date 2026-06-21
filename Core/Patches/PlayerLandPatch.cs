@@ -1,16 +1,13 @@
-﻿using Landfall.Modding;
+﻿namespace HastyControls.Core.Patches;
 
-namespace HastyControls.Core.Patches;
-
-[LandfallPlugin]
-internal static class PlayerLandPatch
+internal class PlayerLandPatch : IHastyPatch
 {
-	static PlayerLandPatch()
+	public void Patch(HastyControlsMod mod)
 	{
 		On.PlayerMovement.Start += (orig, self) =>
 		{
 			orig(self);
-			self.landAction += (character, type, unknown) => Mod.Events.PlayerLanded?.Invoke(character.player, type, unknown);
+			self.landAction += (character, type, unknown) => mod.Events.PlayerLanded?.Invoke(character.player, type, unknown);
 		};
 	}
 }

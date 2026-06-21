@@ -1,31 +1,28 @@
-﻿using Landfall.Modding;
+﻿namespace HastyControls.Core.Patches;
 
-namespace HastyControls.Core.Patches;
-
-[LandfallPlugin]
-internal static class PlayerEventsPatch
+internal class PlayerEventsPatch : IHastyPatch
 {
-	static PlayerEventsPatch()
+	public void Patch(HastyControlsMod mod)
 	{
 		On.Player.Awake += (orig, self) =>
 		{
 			orig(self);
 			
-			self.takeDamageAction += (damage, source, effect) => Mod.Events.PlayerDamaged?.Invoke(self, damage, source, effect);
-			self.pickUpCoinAction += () => Mod.Events.PlayerSparkPickedUp?.Invoke(self);
-			self.HealthChangedAction += (health) => Mod.Events.PlayerHealthChanged?.Invoke(self, health);
+			self.takeDamageAction += (damage, source, effect) => mod.Events.PlayerDamaged?.Invoke(self, damage, source, effect);
+			self.pickUpCoinAction += () => mod.Events.PlayerSparkPickedUp?.Invoke(self);
+			self.HealthChangedAction += (health) => mod.Events.PlayerHealthChanged?.Invoke(self, health);
 		};
 		
 		On.Player.AddResource += (orig, self, amount, source) =>
 		{
 			orig(self, amount, source);
-			Mod.Events.PlayerResourceReceived?.Invoke(self, source, amount);
+			mod.Events.PlayerResourceReceived?.Invoke(self, source, amount);
 		};
 
 		On.Player.SetEnergy += (orig, self, amount) =>
 		{
 			orig(self, amount);
-			Mod.Events.PlayerEnergyChanged?.Invoke(self, self.data.energy);
+			mod.Events.PlayerEnergyChanged?.Invoke(self, self.data.energy);
 		};
 	}
 }
