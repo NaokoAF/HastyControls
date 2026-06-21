@@ -3,10 +3,10 @@ using Zorro.Settings;
 
 namespace HastyControls.Core.Settings;
 
-public abstract class HastyCollapsibleSetting : ButtonSetting, IHastySetting, IExposedSetting
+public abstract class HastyCollapsibleSetting : ButtonSetting, IHastySetting
 {
 	public event Action<bool>? Clicked;
-	public Func<bool>? ShowCondition { get; set; }
+	public IHastySetting? Parent { get; set; }
 
 	public bool Collapsed { get; private set; } = true;
 
@@ -23,6 +23,8 @@ public abstract class HastyCollapsibleSetting : ButtonSetting, IHastySetting, IE
 	public LocalizedString GetDisplayName() => displayName;
 	public override string GetButtonText() => null!;
 	public void Reset() { }
+	public bool CanShow() => Parent?.CanShowChildren() ?? true;
+	public bool CanShowChildren() => !Collapsed && CanShow();
 
 	public override void OnClicked(ISettingHandler settingHandler)
 	{

@@ -131,25 +131,17 @@ public static class HastySettings
 		{
 			setting.Reset();
 		}
-
-		// refresh UI
-		GameObject.FindAnyObjectByType<SettingsUIPage>()?.ShowSettings(Category);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static T GetSetting<T>() where T : Setting, new() => SettingsStorage<T>.Setting;
 
-	static T Add<T>(HastyCollapsibleSetting? collapsibleCategory = null) where T : Setting, IHastySetting, new()
+	static T Add<T>(IHastySetting? parent = null) where T : Setting, IHastySetting, new()
 	{
 		var setting = SettingsStorage<T>.Setting;
+		setting.Parent = parent;
+		
 		hastySettings.Add(setting);
-
-		// if a collapsible is provided, only show the setting if it isn't collapsed, and the collapsible setting is also visible
-		if (collapsibleCategory != null)
-		{
-			setting.ShowCondition = () => !collapsibleCategory.Collapsed && (collapsibleCategory.ShowCondition?.Invoke() ?? true);
-		}
-
 		settingsHandler!.AddSetting(setting);
 		return setting;
 	}

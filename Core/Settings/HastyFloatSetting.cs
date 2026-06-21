@@ -4,10 +4,10 @@ using Zorro.Settings;
 
 namespace HastyControls.Core.Settings;
 
-public abstract class HastyFloatSetting : FloatSetting, IHastySetting, IExposedSetting
+public abstract class HastyFloatSetting : FloatSetting, IHastySetting
 {
 	public event Action<float>? Applied;
-	public Func<bool>? ShowCondition { get; set; }
+	public IHastySetting? Parent { get; set; }
 
 	string category;
 	float defaultValue;
@@ -28,4 +28,5 @@ public abstract class HastyFloatSetting : FloatSetting, IHastySetting, IExposedS
 	protected override float2 GetMinMaxValue() => minMax;
 	public override void ApplyValue() => Applied?.Invoke(Value);
 	public void Reset() => Value = defaultValue;
+	public bool CanShow() => Parent?.CanShowChildren() ?? true;
 }

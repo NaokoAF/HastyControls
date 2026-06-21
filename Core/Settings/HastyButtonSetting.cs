@@ -3,9 +3,9 @@ using Zorro.Settings;
 
 namespace HastyControls.Core.Settings;
 
-public abstract class HastyButtonSetting : ButtonSetting, IHastySetting, IExposedSetting
+public abstract class HastyButtonSetting : ButtonSetting, IHastySetting
 {
-	public Func<bool>? ShowCondition { get; set; }
+	public IHastySetting? Parent { get; set; }
 
 	string category;
 	LocalizedString displayName;
@@ -26,4 +26,5 @@ public abstract class HastyButtonSetting : ButtonSetting, IHastySetting, IExpose
 	public override void OnClicked(ISettingHandler settingHandler) => callback();
 	public override string GetButtonText() => buttonText;
 	public void Reset() { }
+	public bool CanShow() => Parent?.CanShowChildren() ?? true;
 }

@@ -3,10 +3,10 @@ using Zorro.Settings;
 
 namespace HastyControls.Core.Settings;
 
-public abstract class HastyBoolSetting : BoolSetting, IHastySetting, IExposedSetting, IEnumSetting
+public abstract class HastyBoolSetting : BoolSetting, IHastySetting, IEnumSetting
 {
 	public event Action<bool>? Applied;
-	public Func<bool>? ShowCondition { get; set; }
+	public IHastySetting? Parent { get; set; }
 
 	string category;
 	bool defaultValue;
@@ -29,4 +29,5 @@ public abstract class HastyBoolSetting : BoolSetting, IHastySetting, IExposedSet
 	List<string> IEnumSetting.GetUnlocalizedChoices() => choices;
 	public override void ApplyValue() => Applied?.Invoke(Value);
 	public void Reset() => Value = defaultValue;
+	public bool CanShow() => Parent?.CanShowChildren() ?? true;
 }

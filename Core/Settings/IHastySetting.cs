@@ -1,8 +1,9 @@
 ﻿namespace HastyControls.Core.Settings;
 
-public interface IHastySetting : IExposedSetting
+public interface IHastySetting : IExposedSetting, IConditionalSetting
 {
-	public Func<bool>? ShowCondition { get; set; }
+	public IHastySetting? Parent { get; set; }
 
 	void Reset();
+	bool CanShowChildren() => CanShow();
 }

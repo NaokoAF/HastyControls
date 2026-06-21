@@ -3,10 +3,10 @@ using Zorro.Settings;
 
 namespace HastyControls.Core.Settings;
 
-public abstract class HastyEnumSetting<T> : EnumSetting<T>, IHastySetting, IEnumSetting, IExposedSetting where T : unmanaged, Enum
+public abstract class HastyEnumSetting<T> : EnumSetting<T>, IHastySetting, IEnumSetting where T : unmanaged, Enum
 {
 	public event Action<T>? Applied;
-	public Func<bool>? ShowCondition { get; set; }
+	public IHastySetting? Parent { get; set; }
 
 	string category;
 	T defaultValue;
@@ -28,4 +28,5 @@ public abstract class HastyEnumSetting<T> : EnumSetting<T>, IHastySetting, IEnum
 	List<string> IEnumSetting.GetUnlocalizedChoices() => choices;
 	public override void ApplyValue() => Applied?.Invoke(Value);
 	public void Reset() => Value = defaultValue;
+	public bool CanShow() => Parent?.CanShowChildren() ?? true;
 }
