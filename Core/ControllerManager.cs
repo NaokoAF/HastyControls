@@ -48,7 +48,7 @@ public unsafe class ControllerManager
 	{
 		foreach (var gyro in gyroStates.Values)
 		{
-			gyro.GyroInput.Begin();
+			gyro.Begin();
 		}
 	}
 
@@ -81,8 +81,8 @@ public unsafe class ControllerManager
 			// add steam input gyro
 			if (steamInput.TryGetState(controller, out var steamGyro, out var steamAccel))
 			{
-				gyro.GyroInput.AddGyroSample(steamGyro, steamInput.Timestamp);
-				gyro.GyroInput.AddAccelerometerSample(steamAccel, steamInput.Timestamp);
+				gyro.AddGyroSample(steamGyro, steamInput.Timestamp);
+				gyro.AddAccelerometerSample(steamAccel, steamInput.Timestamp);
 			}
 			else
 			{
@@ -147,10 +147,10 @@ public unsafe class ControllerManager
 		switch (sensor)
 		{
 			case SDL_SensorType.SDL_SENSOR_GYRO:
-				gyro.GyroInput.AddGyroSample(data, timestamp);
+				gyro.AddGyroSample(data, timestamp);
 				break;
 			case SDL_SensorType.SDL_SENSOR_ACCEL:
-				gyro.GyroInput.AddAccelerometerSample(data, timestamp);
+				gyro.AddAccelerometerSample(data, timestamp);
 				break;
 		}
 	}

@@ -5,80 +5,96 @@ using static HastyControls.Core.Settings.HastySettings;
 
 namespace HastyControls.Core;
 
-class GyroState
+internal class GyroState
 {
-	public GyroInput GyroInput { get; } = new();
-	public GyroProcessor GyroProcessor { get; } = new();
 	public GyroOrientation DefaultOrientation { get; set; } = GyroOrientation.Normal;
 	public float BiasCalibrationTime { get; set; }
 
 	public event Action<Vector3>? BiasCalibrated;
 
-	GyroSpace? currentGyroSpace = null;
+	private readonly GyroInput gyroInput = new();
+	private readonly GyroProcessor gyroProcessor = new();
+	private GyroSpace? currentGyroSpace;
+	private GyroOrientation currentOrientation = GyroOrientation.Normal;
 
+	public GyroState()
+	{
+		gyroProcessor.Acceleration.ThresholdSlow = 0f;
+		gyroProcessor.Acceleration.ThresholdFast = 0f;
+		gyroProcessor.Acceleration.SensitivitySlow = 1f;
+		gyroProcessor.Acceleration.SensitivityFast = 1f;
+	}
+	
+	public void Begin()
+	{
+		gyroInput.Begin();
+		
+		var gyroSpaceSetting = GetSetting<GyroSpaceSetting>().Value;
+		if (currentGyroSpace != gyroSpaceSetting)
+		{
+			currentGyroSpace = gyroSpaceSetting;
+			gyroProcessor.GyroSpace = currentGyroSpace switch
+			{
+				GyroSpace.LocalYaw => new LocalGyroSpace(GyroAxis.Yaw),
+				GyroSpace.LocalRoll => new LocalGyroSpace(GyroAxis.Roll),
+				GyroSpace.PlayerTurn => new PlayerTurnGyroSpace(),
+				GyroSpace.PlayerLean => new PlayerLeanGyroSpace(),
+				_ => new LocalGyroSpace(GyroAxis.Yaw),
+			};
+		}
+		
+		var gyroOrientationSetting = GetSetting<GyroOrientationSetting>().Value;
+		currentOrientation = gyroOrientationSetting == GyroOrientation.Auto ? DefaultOrientation : gyroOrientationSetting;
+		
+		var gyroSmoothingThresholdSetting = GetSetting<GyroSmoothingThresholdSetting>().Value;
+		var gyroSmoothingTimeSetting = GetSetting<GyroSmoothingTimeSetting>().Value;
+		var gyroTighteningSetting = GetSetting<GyroTighteningSetting>().Value;
+		gyroProcessor.SmoothingThresholdDirect = gyroSmoothingThresholdSetting * MathHelper.DegreesToRadians;
+		gyroProcessor.SmoothingThresholdSmooth = gyroSmoothingThresholdSetting * MathHelper.DegreesToRadians * 0.5f;
+		gyroProcessor.SmoothingTime = gyroSmoothingTimeSetting;
+		gyroProcessor.TighteningThreshold = gyroTighteningSetting * MathHelper.DegreesToRadians;
+	}
+	
 	public Vector2 Update(bool active, float deltaTime)
 	{
 		if (BiasCalibrationTime > 0)
 		{
 			BiasCalibrationTime -= deltaTime;
-			GyroInput.Calibrating = BiasCalibrationTime > 0;
+			gyroInput.Calibrating = BiasCalibrationTime > 0;
 			if (BiasCalibrationTime <= 0)
-				BiasCalibrated?.Invoke(GyroInput.Bias);
+				BiasCalibrated?.Invoke(gyroInput.Bias);
 		}
 
 		if (!active)
 		{
-			GyroProcessor.Reset();
+			gyroProcessor.Reset();
 			return Vector2.Zero;
 		}
 
-		var gyroSpaceSetting = GetSetting<GyroSpaceSetting>().Value;
-		var gyroOrientationSetting = GetSetting<GyroOrientationSetting>().Value;
-		var gyroSmoothingThresholdSetting = GetSetting<GyroSmoothingThresholdSetting>().Value;
-		var gyroSmoothingTimeSetting = GetSetting<GyroSmoothingTimeSetting>().Value;
-		var gyroTighteningSetting = GetSetting<GyroTighteningSetting>().Value;
-
-		if (currentGyroSpace != gyroSpaceSetting)
-		{
-			GyroProcessor.GyroSpace = CreateGyroSpace(gyroSpaceSetting);
-			currentGyroSpace = gyroSpaceSetting;
-		}
-
-		if (gyroOrientationSetting == GyroOrientation.Auto)
-		{
-			gyroOrientationSetting = DefaultOrientation;
-		}
-
-		GyroProcessor.SmoothingThresholdDirect = gyroSmoothingThresholdSetting * MathHelper.DegreesToRadians;
-		GyroProcessor.SmoothingThresholdSmooth = gyroSmoothingThresholdSetting * MathHelper.DegreesToRadians * 0.5f;
-		GyroProcessor.SmoothingTime = gyroSmoothingTimeSetting;
-		GyroProcessor.TighteningThreshold = gyroTighteningSetting * MathHelper.DegreesToRadians;
-		GyroProcessor.Acceleration.ThresholdSlow = 0f;
-		GyroProcessor.Acceleration.ThresholdFast = 0f;
-		GyroProcessor.Acceleration.SensitivitySlow = 1f;
-		GyroProcessor.Acceleration.SensitivityFast = 1f;
-
-		var gyro = GyroInput.Gyro;
-		gyro.Gyro = ApplyOrientation(gyro.Gyro, gyroOrientationSetting);
-		gyro.Accelerometer = ApplyOrientation(gyro.Accelerometer, gyroOrientationSetting);
-		gyro.Gravity = ApplyOrientation(gyro.Gravity, gyroOrientationSetting);
-		
-		return GyroProcessor.Update(gyro, deltaTime);
+		return gyroProcessor.Update(gyroInput.Gyro, deltaTime);
 	}
 	
-	static IGyroSpace CreateGyroSpace(GyroSpace space) => space switch
+	public void AddGyroSample(Vector3 gyro, ulong timestamp)
 	{
-		GyroSpace.LocalYaw => new LocalGyroSpace(GyroAxis.Yaw),
-		GyroSpace.LocalRoll => new LocalGyroSpace(GyroAxis.Roll),
-		GyroSpace.PlayerTurn => new PlayerTurnGyroSpace(),
-		GyroSpace.PlayerLean => new PlayerLeanGyroSpace(),
-		_ => new LocalGyroSpace(),
-	};
+		gyro = currentOrientation switch
+		{
+			GyroOrientation.Deck => new(gyro.X, -gyro.Z, gyro.Y),
+			GyroOrientation.Ally => new(-gyro.Z, -gyro.X, gyro.Y),
+			_ => gyro,
+		};
+		
+		gyroInput.AddGyroSample(gyro, timestamp);
+	}
 
-	static Vector3 ApplyOrientation(Vector3 vector, GyroOrientation orientation) => orientation switch
+	public void AddAccelerometerSample(Vector3 accel, ulong timestamp)
 	{
-		GyroOrientation.Deck => new(vector.X, -vector.Z, vector.Y),
-		GyroOrientation.Ally => new(-vector.Z, -vector.X, vector.Y),
-		_ => vector,
-	};
+		accel = currentOrientation switch
+		{
+			GyroOrientation.Deck => new(accel.X, -accel.Z, accel.Y),
+			GyroOrientation.Ally => new(-accel.Z, -accel.X, accel.Y),
+			_ => accel,
+		};
+		
+		gyroInput.AddAccelerometerSample(accel, timestamp);
+	}
 }
