@@ -27,7 +27,11 @@ internal class GamepadUsesHapticsPatch : IHastyPatch
 		SDL_GamepadType type = mod!.ControllerManager.ActiveController?.GamepadType ?? SDL_GamepadType.SDL_GAMEPAD_TYPE_UNKNOWN;
 		return (
 			type == SDL_GamepadType.SDL_GAMEPAD_TYPE_PS5 ||
-			type == SDL_GamepadType.SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_PRO
+			type == SDL_GamepadType.SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_PRO ||
+			type == SDL_GamepadType.SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_LEFT ||
+			type == SDL_GamepadType.SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT ||
+			type == SDL_GamepadType.SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_PAIR ||
+			type == SDL_GamepadType.SDL_GAMEPAD_TYPE_STEAM
 		);
 	}
 }
