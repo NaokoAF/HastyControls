@@ -8,7 +8,8 @@ public unsafe class SDLManager
 	public SDLVersion Version => version;
 	public string? Revision => revision;
 	public string? CurrentError => sdl.PtrToStringUTF8(sdl.GetError());
-
+	public IReadOnlyCollection<SDLController> Controllers => controllers.Values;
+	
 	public event Action<SDLController>? ControllerAdded;
 	public event Action<SDLController>? ControllerRemoved;
 	public event Action<SDLController, ControllerButton, bool>? ControllerButtonUpdated;

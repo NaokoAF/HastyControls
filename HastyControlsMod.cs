@@ -40,6 +40,8 @@ internal class HastyControlsMod : MonoBehaviour
 		string sdlPath = Path.Combine(GetAssemblyDirectory(), "SDL3.dll.assetbundle");
 		logger.Msg($"Loading SDL from {sdlPath}");
 		sdl = new(new SDL(sdlPath));
+		
+		Logger.Msg($"SDL Version: {sdl.Revision}");
 
 		// initialize
 		gyroPauser = new(events);
@@ -49,13 +51,13 @@ internal class HastyControlsMod : MonoBehaviour
 		
 		// logging
 		sdl.ControllerAdded += controller =>
-			Logger.Msg($"Controller added - {GetControllerName(controller)}");
+			Logger.Msg($"Controller added - {GetControllerPrintName(controller)}");
 		sdl.ControllerRemoved += controller =>
-			Logger.Msg($"Controller removed - {GetControllerName(controller)}");
+			Logger.Msg($"Controller removed - {GetControllerPrintName(controller)}");
 		ControllerManager.GyroBiasCalibrated += (controller, bias) =>
-			Logger.Msg($"Controller calibrated - {GetControllerName(controller)} (Bias: {bias})");
+			Logger.Msg($"Controller calibrated - {GetControllerPrintName(controller)} (Bias: {bias})");
 		ControllerManager.GyroOrientationChanged += (controller, orientation) =>
-			Logger.Msg($"Controller orientation changed - {GetControllerName(controller)} (Orientation: {orientation})");
+			Logger.Msg($"Controller orientation changed - {GetControllerPrintName(controller)} (Orientation: {orientation})");
 
 		// update config
 		UpdateConfig();
@@ -68,7 +70,6 @@ internal class HastyControlsMod : MonoBehaviour
 		Application.focusChanged += _ => ControllerManager.ForceEnableGyro();
 
 		// initialize SDL
-		Logger.Msg($"SDL {sdl.Version.Major}.{sdl.Version.Minor}.{sdl.Version.Micro} ({sdl.Revision})");
 		if (!sdl.Init())
 		{
 			Logger.Msg($"Failed to initialize SDL: {sdl.CurrentError}");
@@ -123,18 +124,20 @@ internal class HastyControlsMod : MonoBehaviour
 		string path = Uri.UnescapeDataString(uri.Path);
 		return Path.GetDirectoryName(path)!;
 	}
-	
-	private static string GetControllerName(SDLController controller)
-	{
-		string str = $"{controller.VendorId:x4}:{controller.ProductId:x4} {controller.Name}";
-		if (controller.SteamHandle != 0) return $"{str} [Steam Input]";
-		if (controller.HasGyro) return $"{str} [No Gyro]";
-		return str;
-	}
 
 	private static void UpdateConfig()
 	{
 		InputSystem.settings.defaultDeadzoneMin = GetSetting<GamepadDeadzonesSetting>().Value;
 		InputSystem.settings.defaultDeadzoneMax = 1f;
+	}
+	
+	public string GetControllerPrintName(SDLController controller)
+	{
+		string type = controller.GamepadType.ToString().Replace("SDL_GAMEPAD_TYPE_", "");
+		
+		string str = $"{controller.VendorId:x4}:{controller.ProductId:x4} {controller.Name} [{type}]";
+		if (controller.SteamHandle != 0) return $"{str} [Steam Input]";
+		if (controller.HasGyro) return $"{str} [No Gyro]";
+		return str;
 	}
 }
