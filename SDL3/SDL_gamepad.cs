@@ -69,25 +69,48 @@ public enum SDL_GamepadAxis
 public unsafe partial class SDL
 {
 	public delegate SDL_Gamepad* SDL_OpenGamepad(SDL_JoystickID instance_id);
+
 	public delegate SDL_JoystickID SDL_GetGamepadID(SDL_Gamepad* gamepad);
+
 	public delegate SDL_Joystick* SDL_GetGamepadJoystick(SDL_Gamepad* gamepad);
+
 	public delegate byte* SDL_GetGamepadName(SDL_Gamepad* gamepad);
+
 	public delegate SDL_GamepadType SDL_GetGamepadType(SDL_Gamepad* gamepad);
+
 	public delegate void SDL_SetGamepadEventsEnabled(SDLBool enabled);
+
 	public delegate SDLBool SDL_GamepadEventsEnabled();
+
 	public delegate void SDL_UpdateGamepads();
+
 	public delegate int SDL_GetNumGamepadTouchpads(SDL_Gamepad* gamepad);
+
 	public delegate int SDL_GetNumGamepadTouchpadFingers(SDL_Gamepad* gamepad, int touchpad);
-	public delegate SDLBool SDL_GetGamepadTouchpadFinger(SDL_Gamepad* gamepad, int touchpad, int finger, SDLBool* down, float* x, float* y, float* pressure);
+
+	public delegate SDLBool SDL_GetGamepadTouchpadFinger(SDL_Gamepad* gamepad, int touchpad, int finger, SDLBool* down, float* x,
+		float* y, float* pressure);
+
 	public delegate SDLBool SDL_GamepadHasSensor(SDL_Gamepad* gamepad, SDL_SensorType type);
+
 	public delegate SDLBool SDL_SetGamepadSensorEnabled(SDL_Gamepad* gamepad, SDL_SensorType type, SDLBool enabled);
+
 	public delegate SDLBool SDL_GamepadSensorEnabled(SDL_Gamepad* gamepad, SDL_SensorType type);
+
 	public delegate float SDL_GetGamepadSensorDataRate(SDL_Gamepad* gamepad, SDL_SensorType type);
+
 	public delegate SDLBool SDL_GetGamepadSensorData(SDL_Gamepad* gamepad, SDL_SensorType type, float* data, int num_values);
-	public delegate SDLBool SDL_RumbleGamepad(SDL_Gamepad* gamepad, ushort low_frequency_rumble, ushort high_frequency_rumble, uint duration_ms);
-	public delegate SDLBool SDL_RumbleGamepadTriggers(SDL_Gamepad* gamepad, ushort left_rumble, ushort right_rumble, uint duration_ms);
+
+	public delegate SDLBool SDL_RumbleGamepad(SDL_Gamepad* gamepad, ushort low_frequency_rumble, ushort high_frequency_rumble,
+		uint duration_ms);
+
+	public delegate SDLBool SDL_RumbleGamepadTriggers(SDL_Gamepad* gamepad, ushort left_rumble, ushort right_rumble,
+		uint duration_ms);
+
 	public delegate SDLBool SDL_SetGamepadLED(SDL_Gamepad* gamepad, byte red, byte green, byte blue);
+
 	public delegate void SDL_CloseGamepad(SDL_Gamepad* gamepad);
+
 	public delegate ulong SDL_GetGamepadSteamHandle(SDL_Gamepad* gamepad);
 
 	public SDL_OpenGamepad OpenGamepad;

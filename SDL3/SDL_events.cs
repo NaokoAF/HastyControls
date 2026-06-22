@@ -195,22 +195,14 @@ public unsafe partial struct SDL_SensorEvent
 [StructLayout(LayoutKind.Explicit)]
 public unsafe partial struct SDL_Event
 {
-	[FieldOffset(0)]
-	public uint type;
-	[FieldOffset(0)]
-	public SDL_GamepadDeviceEvent gdevice;
-	[FieldOffset(0)]
-	public SDL_GamepadAxisEvent gaxis;
-	[FieldOffset(0)]
-	public SDL_GamepadButtonEvent gbutton;
-	[FieldOffset(0)]
-	public SDL_GamepadTouchpadEvent gtouchpad;
-	[FieldOffset(0)]
-	public SDL_GamepadSensorEvent gsensor;
-	[FieldOffset(0)]
-	public SDL_SensorEvent sensor;
-	[FieldOffset(0)]
-	public fixed byte padding[128];
+	[FieldOffset(0)] public uint type;
+	[FieldOffset(0)] public SDL_GamepadDeviceEvent gdevice;
+	[FieldOffset(0)] public SDL_GamepadAxisEvent gaxis;
+	[FieldOffset(0)] public SDL_GamepadButtonEvent gbutton;
+	[FieldOffset(0)] public SDL_GamepadTouchpadEvent gtouchpad;
+	[FieldOffset(0)] public SDL_GamepadSensorEvent gsensor;
+	[FieldOffset(0)] public SDL_SensorEvent sensor;
+	[FieldOffset(0)] public fixed byte padding[128];
 }
 
 public unsafe partial class SDL

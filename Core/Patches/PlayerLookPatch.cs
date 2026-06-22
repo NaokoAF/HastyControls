@@ -6,17 +6,17 @@ namespace HastyControls.Core.Patches;
 
 internal class PlayerLookPatch : IHastyPatch
 {
-	HastyControlsMod? mod;
-	
-	bool gyroResetPrevButtonDown;
-	float gyroResetT;
-	Vector2 gyroResetAngle;
-	Vector2 gyroResetPrevAngle;
-	
+	private HastyControlsMod? mod;
+
+	private bool gyroResetPrevButtonDown;
+	private float gyroResetT;
+	private Vector2 gyroResetAngle;
+	private Vector2 gyroResetPrevAngle;
+
 	public void Patch(HastyControlsMod mod)
 	{
 		this.mod = mod;
-		
+
 		On.PlayerCharacter.SetLook += (orig, self) =>
 		{
 			if (!HasteInputSystem.CanTakeInput())
@@ -37,7 +37,7 @@ internal class PlayerLookPatch : IHastyPatch
 			data.lookDir = Quaternion.Euler(data.lookRotationEulerAngles) * Vector3.forward;
 		};
 	}
-	
+
 	private void DoAutoLook(PlayerCharacter character)
 	{
 		var data = character.data;
@@ -53,7 +53,9 @@ internal class PlayerLookPatch : IHastyPatch
 			if (horizontalSpeed != 0f && horizontalStrength != 0f)
 			{
 				// local-space point in front of player
-				Vector3 direction = refs.playerVisualRotation.visual.transform.InverseTransformPoint(refs.playerVisualRotation.visual.transform.position + data.lookDir);
+				Vector3 direction = refs.playerVisualRotation.visual.transform.InverseTransformPoint(
+					refs.playerVisualRotation.visual.transform.position + data.lookDir
+				);
 
 				// smoothed magnitude value based on movement and look input horizontal magnitudes
 				// this makes it so the look cancels out the movement input, sort of
@@ -62,9 +64,9 @@ internal class PlayerLookPatch : IHastyPatch
 				data.autoLookValue = Mathf.Lerp(data.autoLookValue, autoLookTarget, Time.deltaTime * 2f * horizontalSpeed);
 
 				// rotate
-				float horizontalDelta = -direction.x * Mathf.Clamp01(data.autoLookValue) * config.movementLookSpring * Time.deltaTime;
+				float horizontalDelta = -direction.x * Mathf.Clamp01(data.autoLookValue) * config.movementLookSpring;
 				horizontalDelta *= horizontalStrength;
-				data.lookRotationValues.x += horizontalDelta;
+				data.lookRotationValues.x += horizontalDelta * Time.deltaTime;
 			}
 
 			float verticalSpeed = GetSetting<AutoLookVerSpeedSetting>().Value;
@@ -72,8 +74,11 @@ internal class PlayerLookPatch : IHastyPatch
 			if (verticalSpeed != 0f && verticalStrength != 0f)
 			{
 				float verticalBaseAngle = GetSetting<AutoLookVerBaseAngleSetting>().Value;
-				// caculate angle based on velocity's vertical direction
-				float verticalTarget = (verticalBaseAngle * 20f) - (refs.rig.linearVelocity.normalized.y * verticalStrength * 20f);
+
+				// calculate angle based on velocity's vertical direction
+				float verticalTarget = (
+					(verticalBaseAngle * 20f) - (refs.rig.linearVelocity.normalized.y * verticalStrength * 20f)
+				);
 
 				// tilt the camera by a set value when holding down the fast fall button
 				if (data.fastFalling && !data.mostlyGrounded)
@@ -114,6 +119,7 @@ internal class PlayerLookPatch : IHastyPatch
 				gyroResetAngle.x = 0f;
 			}
 		}
+
 		gyroResetPrevButtonDown = gyroButtonDown;
 
 		// animate

@@ -4,15 +4,18 @@ namespace HastyControls.Core.Patches;
 
 internal class AbilityBoardBoostPatch : IHastyPatch
 {
-	static FieldInfo playerField = typeof(A_BoardBoost).GetField("player", BindingFlags.Instance | BindingFlags.NonPublic)!;
-	static FieldInfo landBoostingField = typeof(A_BoardBoost).GetField("landBoosting", BindingFlags.Instance | BindingFlags.NonPublic)!;
-	
+	private static readonly FieldInfo playerField =
+		typeof(A_BoardBoost).GetField("player", BindingFlags.Instance | BindingFlags.NonPublic)!;
+
+	private static readonly FieldInfo landBoostingField =
+		typeof(A_BoardBoost).GetField("landBoosting", BindingFlags.Instance | BindingFlags.NonPublic)!;
+
 	public void Patch(HastyControlsMod mod)
 	{
 		On.A_BoardBoost.Update += (orig, self) =>
 		{
 			bool prevBoosting = (bool)landBoostingField.GetValue(self);
-			
+
 			orig(self);
 
 			bool boosting = (bool)landBoostingField.GetValue(self);

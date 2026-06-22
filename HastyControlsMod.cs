@@ -13,13 +13,13 @@ namespace HastyControls;
 internal class HastyControlsMod : MonoBehaviour
 {
 	public ILogger Logger => logger!;
-	public HasteEvents Events  => events!;
+	public HasteEvents Events => events!;
 	public GyroPauser GyroPauser => gyroPauser!;
 	public SDLManager SDL => sdl!;
 	public SteamInputManager SteamInputManager => steamInputManager!;
 	public ControllerManager ControllerManager => controllerManager!;
 	public HasteRumble Rumble => rumble!;
-	
+
 	private ILogger logger = new UnityDebugLogger();
 	private HasteEvents events = new();
 	private GyroPauser? gyroPauser;
@@ -27,7 +27,6 @@ internal class HastyControlsMod : MonoBehaviour
 	private SteamInputManager? steamInputManager;
 	private ControllerManager? controllerManager;
 	private HasteRumble? rumble;
-
 	private readonly List<IHastyPatch> patches = new();
 
 	private void Awake()
@@ -40,7 +39,7 @@ internal class HastyControlsMod : MonoBehaviour
 		string sdlPath = Path.Combine(GetAssemblyDirectory(), "SDL3.dll.assetbundle");
 		logger.Msg($"Loading SDL from {sdlPath}");
 		sdl = new(new SDL(sdlPath));
-		
+
 		Logger.Msg($"SDL Version: {sdl.Revision}");
 
 		// initialize
@@ -48,7 +47,7 @@ internal class HastyControlsMod : MonoBehaviour
 		steamInputManager = new();
 		controllerManager = new(sdl, steamInputManager);
 		rumble = new(events, controllerManager);
-		
+
 		// logging
 		sdl.ControllerAdded += controller =>
 			Logger.Msg($"Controller added - {GetControllerPrintName(controller)}");
@@ -74,9 +73,9 @@ internal class HastyControlsMod : MonoBehaviour
 		{
 			Logger.Msg($"Failed to initialize SDL: {sdl.CurrentError}");
 		}
-		
+
 		// apply patches
-		foreach(Type type in typeof(IHastyPatch).Assembly.GetTypes())
+		foreach (Type type in typeof(IHastyPatch).Assembly.GetTypes())
 		{
 			if (type == typeof(IHastyPatch) || !typeof(IHastyPatch).IsAssignableFrom(type)) continue;
 
@@ -86,7 +85,7 @@ internal class HastyControlsMod : MonoBehaviour
 			{
 				IHastyPatch patch = (IHastyPatch)Activator.CreateInstance(type)!;
 				patch.Patch(this);
-				
+
 				// keep patches in a list so C# doesn't garbage collect them
 				patches.Add(patch);
 			}
@@ -104,9 +103,9 @@ internal class HastyControlsMod : MonoBehaviour
 		rumble!.Update(Time.unscaledDeltaTime);
 		gyroPauser!.Update();
 
-		controllerManager.GyroButtonDown = HastySettings.GyroButtonAction?.IsPressed() ?? false;
+		controllerManager.GyroButtonDown = GyroButtonAction?.IsPressed() ?? false;
 		controllerManager.GyroButtonMode = GetSetting<GyroButtonModeSetting>().Value;
-		controllerManager.GyroCalibrateButtonDown = (HastySettings.GyroCalibrateAction?.IsPressed() ?? false) && EscapeMenu.IsOpen;
+		controllerManager.GyroCalibrateButtonDown = (GyroCalibrateAction?.IsPressed() ?? false) && EscapeMenu.IsOpen;
 		controllerManager.GyroPaused = gyroPauser.IsGyroPaused;
 
 		if (GetSetting<GyroUseTouchpadAsModifier>().Value && controllerManager.ActiveController != null)
@@ -115,7 +114,7 @@ internal class HastyControlsMod : MonoBehaviour
 		steamInputManager!.Update(Time.unscaledDeltaTime);
 		controllerManager.Update(Time.unscaledDeltaTime);
 	}
-	
+
 	// janky solution to find where the workshop folder is
 	private static string GetAssemblyDirectory()
 	{
@@ -130,11 +129,11 @@ internal class HastyControlsMod : MonoBehaviour
 		InputSystem.settings.defaultDeadzoneMin = GetSetting<GamepadDeadzonesSetting>().Value;
 		InputSystem.settings.defaultDeadzoneMax = 1f;
 	}
-	
+
 	public string GetControllerPrintName(SDLController controller)
 	{
 		string type = controller.GamepadType.ToString().Replace("SDL_GAMEPAD_TYPE_", "");
-		
+
 		string str = $"{controller.VendorId:x4}:{controller.ProductId:x4} {controller.Name} [{type}]";
 		if (controller.SteamHandle != 0) return $"{str} [Steam Input]";
 		if (controller.HasGyro) return $"{str} [No Gyro]";

@@ -1,33 +1,35 @@
-﻿using UnityEngine.Localization;
+﻿using Landfall.Haste;
+using UnityEngine.Localization;
 using Zorro.Settings;
 
 namespace HastyControls.Core.Settings;
 
-public abstract class HastyBoolSetting : BoolSetting, IHastySetting, IEnumSetting
+public abstract class HastyBoolSetting : BoolSetting, IHastySetting
 {
 	public event Action<bool>? Applied;
 	public IHastySetting? Parent { get; set; }
+	public override LocalizedString OffString { get; }
+	public override LocalizedString OnString { get; }
 
-	string category;
-	bool defaultValue;
-	LocalizedString displayName;
-	List<string> choices;
+	private readonly string category;
+	private readonly bool defaultValue;
+	private readonly LocalizedString displayName;
 
-	public HastyBoolSetting(string category, string name, string description, bool defaultValue, string offChoice = "Off", string onChoice = "On")
+	public HastyBoolSetting(string category, string name, string description, bool defaultValue,
+		string offChoice = "Off", string onChoice = "On")
 	{
 		this.category = category;
 		this.defaultValue = defaultValue;
 		displayName = HastySettings.CreateDisplayName(name, description);
-		choices = [offChoice, onChoice];
+		OffString = new UnlocalizedString(offChoice);
+		OnString = new UnlocalizedString(onChoice);
 	}
+
+	protected override bool GetDefaultValue() => defaultValue;
 
 	public string GetCategory() => category;
 	public LocalizedString GetDisplayName() => displayName;
-	protected override bool GetDefaultValue() => defaultValue;
-	public override LocalizedString OffString => null!;
-	public override LocalizedString OnString => null!;
-	List<string> IEnumSetting.GetUnlocalizedChoices() => choices;
 	public override void ApplyValue() => Applied?.Invoke(Value);
-	public void Reset() => Value = defaultValue;
 	public bool CanShow() => Parent?.CanShowChildren() ?? true;
+	public void Reset() => Value = defaultValue;
 }

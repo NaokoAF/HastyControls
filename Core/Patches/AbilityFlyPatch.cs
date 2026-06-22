@@ -4,8 +4,9 @@ namespace HastyControls.Core.Patches;
 
 internal class AbilityFlyPatch : IHastyPatch
 {
-	static FieldInfo playerField = typeof(Ability_Fly).GetField("player", BindingFlags.Instance | BindingFlags.NonPublic)!;
-	
+	private static readonly FieldInfo playerField =
+		typeof(Ability_Fly).GetField("player", BindingFlags.Instance | BindingFlags.NonPublic)!;
+
 	public void Patch(HastyControlsMod mod)
 	{
 		On.Ability_Fly.Update += (orig, self) =>
@@ -17,7 +18,7 @@ internal class AbilityFlyPatch : IHastyPatch
 			{
 				mod.Events.PlayerFlyAbilityUsed?.Invoke(player.player, ground);
 			}
-			
+
 			orig(self);
 		};
 	}

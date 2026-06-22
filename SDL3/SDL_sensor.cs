@@ -21,12 +21,19 @@ public enum SDL_SensorType
 public unsafe partial class SDL
 {
 	public delegate SDL_SensorID* SDL_GetSensors(int* count);
+
 	public delegate byte* SDL_GetSensorNameForID(SDL_SensorID instance_id);
+
 	public delegate SDL_Sensor* SDL_OpenSensor(SDL_SensorID instance_id);
+
 	public delegate SDL_Sensor* SDL_GetSensorFromID(SDL_SensorID instance_id);
+
 	public delegate byte* SDL_GetSensorName(SDL_Sensor* sensor);
+
 	public delegate SDL_SensorType SDL_GetSensorType(SDL_Sensor* sensor);
+
 	public delegate void SDL_CloseSensor(SDL_Sensor* sensor);
+
 	public delegate void SDL_UpdateSensors();
 	//public delegate SDL_PropertiesID SDL_GetSensorProperties(SDL_Sensor* sensor);
 
@@ -37,7 +44,7 @@ public unsafe partial class SDL
 	public SDL_GetSensorName GetSensorName;
 	public SDL_GetSensorType GetSensorType;
 	public SDL_CloseSensor CloseSensor;
+
 	public SDL_UpdateSensors UpdateSensors;
 	//public SDL_GetSensorProperties GetSensorProperties;
-
 }

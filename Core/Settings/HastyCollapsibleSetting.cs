@@ -10,8 +10,8 @@ public abstract class HastyCollapsibleSetting : ButtonSetting, IHastySetting
 
 	public bool Collapsed { get; private set; } = true;
 
-	string category;
-	LocalizedString displayName;
+	private readonly string category;
+	private readonly LocalizedString displayName;
 
 	public HastyCollapsibleSetting(string category, string name, string description)
 	{
@@ -22,7 +22,6 @@ public abstract class HastyCollapsibleSetting : ButtonSetting, IHastySetting
 	public string GetCategory() => category;
 	public LocalizedString GetDisplayName() => displayName;
 	public override string GetButtonText() => null!;
-	public void Reset() { }
 	public bool CanShow() => Parent?.CanShowChildren() ?? true;
 	public bool CanShowChildren() => !Collapsed && CanShow();
 
@@ -30,5 +29,9 @@ public abstract class HastyCollapsibleSetting : ButtonSetting, IHastySetting
 	{
 		Collapsed = !Collapsed;
 		Clicked?.Invoke(Collapsed);
+	}
+
+	public void Reset()
+	{
 	}
 }

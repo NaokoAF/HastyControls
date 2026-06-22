@@ -2,5 +2,9 @@
 
 public enum GyroButtonMode
 {
-	Off, On, Toggle, Recenter, RecenterAndOff
+	Off,
+	On,
+	Toggle,
+	Recenter,
+	RecenterAndOff,
 }

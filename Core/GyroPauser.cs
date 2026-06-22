@@ -10,10 +10,10 @@ public class GyroPauser
 	public bool IsGamePaused => gamePaused;
 	public bool IsGyroPaused => gyroPaused;
 
-	float gyroPauseTime;
-	bool gyroPauseOnce;
-	bool gyroPaused;
-	bool gamePaused;
+	private float gyroPauseTime;
+	private bool gyroPauseOnce;
+	private bool gyroPaused;
+	private bool gamePaused;
 
 	public GyroPauser(HasteEvents events)
 	{
@@ -44,21 +44,24 @@ public class GyroPauser
 			gyroPauseTime -= Time.unscaledDeltaTime;
 			return;
 		}
+
 		gyroPauseTime = 0f;
 
 		// pause if gyro is disabled or the window is unfocused
-		if (GetSetting<GyroSensitivitySetting>().Value == 0f || !Application.isFocused)
+		float gyroSensitivity = GetSetting<GyroSensitivitySetting>().Value;
+		if (gyroSensitivity == 0f || !Application.isFocused)
 			return;
 
 		// if GyroDisableWhenWalking is enabled, disable gyro when SlowMovement is active, but re-enable when charging up fast run
 		var player = PlayerCharacter.localPlayer;
-		if (GetSetting<GyroDisableWhenWalkingSetting>().Value && player != null && player.refs.slowMovement.enabled && !player.data.enteringFastRun)
+		bool gyroDisableWhenWalking = GetSetting<GyroDisableWhenWalkingSetting>().Value;
+		if (gyroDisableWhenWalking && player != null && player.refs.slowMovement.enabled && !player.data.enteringFastRun)
 			return;
 
 		gyroPaused = false;
 	}
 
-	void AddPauseTime()
+	private void AddPauseTime()
 	{
 		gyroPauseOnce = true;
 		gyroPauseTime = 0.1f;

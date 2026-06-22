@@ -9,7 +9,7 @@ internal class DisableAbilitiesInSafeAreasPatch : IHastyPatch
 		On.PlayerCharacter.PlayerInput.SampleInput += (orig, self, character, autoRun) =>
 		{
 			orig(self, character, autoRun);
-			
+
 			if (!GetSetting<GeneralDisableAbilitiesInSafeZonesSetting>().Value)
 				return;
 

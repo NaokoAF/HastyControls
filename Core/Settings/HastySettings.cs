@@ -1,6 +1,5 @@
-﻿using Landfall.Haste;
-using System.Runtime.CompilerServices;
-using UnityEngine;
+﻿using System.Runtime.CompilerServices;
+using Landfall.Haste;
 using UnityEngine.InputSystem;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
@@ -11,55 +10,127 @@ namespace HastyControls.Core.Settings;
 
 public static class HastySettings
 {
-	const string Category = ModInfo.Name;
-	static readonly IEnumerable<string> GyroSpaceChoices = ["Local Yaw", "Local Roll", "Player Turn", "Player Lean"];
-	static readonly IEnumerable<string> GyroOrientationChoices = ["Auto", "Normal", "Steam Deck", "ROG Ally"];
-	static readonly IEnumerable<string> GyroButtonModeChoices = ["Disable while held", "Enable while held", "Toggle when pressed", "Recenter when pressed", "Recenter and disable while held"];
-
-	public class GeneralCollapsibleSetting() : HastyCollapsibleSetting(Category, "General Settings", "");
-	public class GamepadCollapsibleSetting() : HastyCollapsibleSetting(Category, "Gamepad Settings", "");
-	public class GyroCollapsibleSetting() : HastyCollapsibleSetting(Category, "Gyro Settings", "");
-	public class AutoLookCollapsibleSetting() : HastyCollapsibleSetting(Category, "AutoLook Settings", "");
-	public class RumbleCollapsibleSetting() : HastyCollapsibleSetting(Category, "Rumble Settings (Legacy)", "");
-
-	public class GeneralDisableAbilitiesInSafeZonesSetting() : HastyBoolSetting(Category, "Disable Abilities in Safe Zones", "Prevent accidental usage of abilities in the shop and healing areas.", true);
-	public class GamepadSensitivityRatioSetting() : HastyFloatSetting(Category, "Gamepad Sensitivity Ratio", "Vertical sensitivity multiplier. 0.75 means vertical sensitivity is 75% slower than horizontal.", 0f, 5f, 1f);
-	public class GamepadPowerCurveSetting() : HastyFloatSetting(Category, "Gamepad Power Curve", "Right stick power curve. Values above 1 squish motion closer to the center of the stick, values below 1 stretch them closer to the edge.", 0.01f, 5f, 1f);
-	public class GamepadDeadzonesSetting() : HastyFloatSetting(Category, "Gamepad Deadzones", "Adjust deadzones to combat stick drift.", 0.01f, 1f, 0.125f);
-	public class GyroSensitivitySetting() : HastyFloatSetting(Category, "Gyro Sensitivity", "Gyro sensitivity. 2 means a 90 degree turn rotates the camera 180 degrees.", 0f, 10f, 3f);
-	public class GyroSensitivityRatioSetting() : HastyFloatSetting(Category, "Gyro Sensitivity Ratio", "Vertical sensitivity multiplier. 0.75 means vertical sensitivity is 75% slower than horizontal.", 0f, 5f, 0.75f);
-	public class GyroDisableWhenWalkingSetting() : HastyBoolSetting(Category, "Gyro Disable when Walking", "Disable gyro while slow walking.", false);
-	public class GyroSpaceSetting() : HastyEnumSetting<GyroSpace>(Category, "Gyro Space", "Algorithm used to convert real world movements to the in game camera.", GyroSpace.PlayerTurn, GyroSpaceChoices);
-	public class GyroOrientationSetting() : HastyEnumSetting<GyroOrientation>(Category, "Gyro Orientation", "(Experimental) Fixes devices with unusual orientations. Try changing Gyro Space before this.", GyroOrientation.Auto, GyroOrientationChoices);
-	public class GyroButtonModeSetting() : HastyEnumSetting<GyroButtonMode>(Category, "Gyro Modifier Mode", "Behavior of gyro modifier button.", GyroButtonMode.Off, GyroButtonModeChoices);
-	public class GyroUseTouchpadAsModifier() : HastyBoolSetting(Category, "Gyro Use Touchpad as Modifier", "Interpret touchpad touches as an additional gyro modifier button.", true);
-	public class GyroTighteningSetting() : HastyFloatSetting(Category, "Gyro Tightening", "Soft gyro deadzone to reduce the effects of shaky hands.", 0f, 15f, 3f);
-	public class GyroSmoothingThresholdSetting() : HastyFloatSetting(Category, "Gyro Smoothing Threshold", "Threshold below which gyro rotations are smoothed.", 0f, 300f, 35f);
-	public class GyroSmoothingTimeSetting() : HastyFloatSetting(Category, "Gyro Smoothing Time", "Amount of time gyro is smoothed for.", 0f, 0.5f, 0.1f);
-	public class GyroInvertXSetting() : HastyBoolSetting(Category, "Gyro Invert X", "Invert gyro X axis (Horizontal).", false);
-	public class GyroInvertYSetting() : HastyBoolSetting(Category, "Gyro Invert Y", "Invert gyro Y axis (Vertical).", false);
-	public class AutoLookHorSpeedSetting() : HastyFloatSetting(Category, "AutoLook Horizontal Speed", "How fast the camera faces the direction of the left stick.", 0f, 10f, 1f);
-	public class AutoLookHorStrengthSetting() : HastyFloatSetting(Category, "AutoLook Horizontal Strength", "How strongly the camera faces the direction of the left stick.", 0f, 10f, 1f);
-	public class AutoLookVerSpeedSetting() : HastyFloatSetting(Category, "AutoLook Vertical Speed", "How fast the camera follows your vertical velocity.", 0f, 10f, 1f);
-	public class AutoLookVerStrengthSetting() : HastyFloatSetting(Category, "AutoLook Vertical Strength", "How strongly the camera follows your vertical velocity.", 0f, 10f, 0f);
-	public class AutoLookVerBaseAngleSetting() : HastyFloatSetting(Category, "AutoLook Vertical Base Angle", "Default vertical angle while touching the ground. Higher values tilt the camera downward.", -5f, 5f, 1f);
-	public class RumbleEnabledLegacySetting() : HastyBoolSetting(Category, "Rumble Enabled", "Enable HastyControl's old rumble implementation (Before Patch 1.7.a)", false);
-	public class RumbleIntensitySetting() : HastyFloatSetting(Category, "Rumble Intensity", "Overall rumble intensity.", 0f, 5f, 1f);
-	public class RumbleOnDamageSetting() : HastyFloatSetting(Category, "Rumble on Damage Intensity", "Rumble intensity when taking damage.", 0f, 5f, 1f);
-	public class RumbleOnLandSetting() : HastyFloatSetting(Category, "Rumble on Land Intensity", "Rumble intensity when landing. Different landing grades have different rumble properties.", 0f, 5f, 1f);
-	public class RumbleOnFastRunSetting() : HastyFloatSetting(Category, "Rumble on Fast Run Intensity", "Rumble intensity when charging up fast run.", 0f, 5f, 1f);
-	public class RumbleOnSparkPickupSetting() : HastyFloatSetting(Category, "Rumble on Spark Pickup Intensity", "Rumble intensity when picking up sparks.", 0f, 5f, 1f);
-	public class RumbleOnBoostRingSetting() : HastyFloatSetting(Category, "Rumble on Boost Ring Intensity", "Rumble intensity when going through a boost ring.", 0f, 5f, 1f);
-	public class RumbleOnBoardBoostSetting() : HastyFloatSetting(Category, "Rumble on Board Boost Intensity", "Rumble intensity when board boosting.", 0f, 5f, 1f);
-	public class RumbleOnGrappleSetting() : HastyFloatSetting(Category, "Rumble on Grapple Intensity", "Rumble intensity when activating the grappling hook (Heir's Javelin).", 0f, 5f, 1f);
-	public class RumbleOnFlySetting() : HastyFloatSetting(Category, "Rumble on Poncho Intensity", "Rumble intensity when activating the poncho (Sage's Cowl).", 0f, 5f, 1f);
-	public class ResetSettingsSetting() : HastyButtonSetting(Category, "Revert Settings to Defaults", "Resets all HastyControls settings to defaults.", "Reset", HastySettings.Reset);
-
-	static HasteSettingsHandler? settingsHandler;
-	static List<IHastySetting> hastySettings = new();
-
 	public static InputAction? GyroButtonAction;
 	public static InputAction? GyroCalibrateAction;
+
+	private const string Category = ModInfo.Name;
+	private static readonly IEnumerable<string> GyroSpaceChoices = ["Local Yaw", "Local Roll", "Player Turn", "Player Lean"];
+	private static readonly IEnumerable<string> GyroOrientationChoices = ["Auto", "Normal", "Steam Deck", "ROG Ally"];
+
+	private static readonly IEnumerable<string> GyroButtonModeChoices =
+	[
+		"Disable while held", "Enable while held", "Toggle when pressed", "Recenter when pressed",
+		"Recenter and disable while held"
+	];
+
+	public class GeneralCollapsibleSetting() : HastyCollapsibleSetting(Category, "General Settings", "");
+
+	public class GamepadCollapsibleSetting() : HastyCollapsibleSetting(Category, "Gamepad Settings", "");
+
+	public class GyroCollapsibleSetting() : HastyCollapsibleSetting(Category, "Gyro Settings", "");
+
+	public class AutoLookCollapsibleSetting() : HastyCollapsibleSetting(Category, "AutoLook Settings", "");
+
+	public class RumbleCollapsibleSetting() : HastyCollapsibleSetting(Category, "Rumble Settings (Legacy)", "");
+
+	public class GeneralDisableAbilitiesInSafeZonesSetting() : HastyBoolSetting(Category, "Disable Abilities in Safe Zones",
+		"Prevent accidental usage of abilities in the shop and healing areas.", true);
+
+	public class GamepadSensitivityRatioSetting() : HastyFloatSetting(Category, "Gamepad Sensitivity Ratio",
+		"Vertical sensitivity multiplier. 0.75 means vertical sensitivity is 75% slower than horizontal.", 0f, 5f, 1f);
+
+	public class GamepadPowerCurveSetting() : HastyFloatSetting(Category, "Gamepad Power Curve",
+		"Right stick power curve. Values above 1 squish motion closer to the center of the stick, values below 1 stretch them closer to the edge.",
+		0.01f, 5f, 1f);
+
+	public class GamepadDeadzonesSetting() : HastyFloatSetting(Category, "Gamepad Deadzones",
+		"Adjust deadzones to combat stick drift.", 0.01f, 1f, 0.125f);
+
+	public class GyroSensitivitySetting() : HastyFloatSetting(Category, "Gyro Sensitivity",
+		"Gyro sensitivity. 2 means a 90 degree turn rotates the camera 180 degrees.", 0f, 10f, 3f);
+
+	public class GyroSensitivityRatioSetting() : HastyFloatSetting(Category, "Gyro Sensitivity Ratio",
+		"Vertical sensitivity multiplier. 0.75 means vertical sensitivity is 75% slower than horizontal.", 0f, 5f, 0.75f);
+
+	public class GyroDisableWhenWalkingSetting()
+		: HastyBoolSetting(Category, "Gyro Disable when Walking", "Disable gyro while slow walking.", false);
+
+	public class GyroSpaceSetting() : HastyEnumSetting<GyroSpace>(Category, "Gyro Space",
+		"Algorithm used to convert real world movements to the in game camera.", GyroSpace.PlayerTurn, GyroSpaceChoices);
+
+	public class GyroOrientationSetting() : HastyEnumSetting<GyroOrientation>(Category, "Gyro Orientation",
+		"(Experimental) Fixes devices with unusual orientations. Try changing Gyro Space before this.", GyroOrientation.Auto,
+		GyroOrientationChoices);
+
+	public class GyroButtonModeSetting() : HastyEnumSetting<GyroButtonMode>(Category, "Gyro Modifier Mode",
+		"Behavior of gyro modifier button.", GyroButtonMode.Off, GyroButtonModeChoices);
+
+	public class GyroUseTouchpadAsModifier() : HastyBoolSetting(Category, "Gyro Use Touchpad as Modifier",
+		"Interpret touchpad touches as an additional gyro modifier button.", true);
+
+	public class GyroTighteningSetting() : HastyFloatSetting(Category, "Gyro Tightening",
+		"Soft gyro deadzone to reduce the effects of shaky hands.", 0f, 15f, 3f);
+
+	public class GyroSmoothingThresholdSetting() : HastyFloatSetting(Category, "Gyro Smoothing Threshold",
+		"Threshold below which gyro rotations are smoothed.", 0f, 300f, 35f);
+
+	public class GyroSmoothingTimeSetting()
+		: HastyFloatSetting(Category, "Gyro Smoothing Time", "Amount of time gyro is smoothed for.", 0f, 0.5f, 0.1f);
+
+	public class GyroInvertXSetting() : HastyBoolSetting(Category, "Gyro Invert X", "Invert gyro X axis (Horizontal).", false);
+
+	public class GyroInvertYSetting() : HastyBoolSetting(Category, "Gyro Invert Y", "Invert gyro Y axis (Vertical).", false);
+
+	public class AutoLookHorSpeedSetting() : HastyFloatSetting(Category, "AutoLook Horizontal Speed",
+		"How fast the camera faces the direction of the left stick.", 0f, 10f, 1f);
+
+	public class AutoLookHorStrengthSetting() : HastyFloatSetting(Category, "AutoLook Horizontal Strength",
+		"How strongly the camera faces the direction of the left stick.", 0f, 10f, 1f);
+
+	public class AutoLookVerSpeedSetting() : HastyFloatSetting(Category, "AutoLook Vertical Speed",
+		"How fast the camera follows your vertical velocity.", 0f, 10f, 1f);
+
+	public class AutoLookVerStrengthSetting() : HastyFloatSetting(Category, "AutoLook Vertical Strength",
+		"How strongly the camera follows your vertical velocity.", 0f, 10f, 0f);
+
+	public class AutoLookVerBaseAngleSetting() : HastyFloatSetting(Category, "AutoLook Vertical Base Angle",
+		"Default vertical angle while touching the ground. Higher values tilt the camera downward.", -5f, 5f, 1f);
+
+	public class RumbleEnabledLegacySetting() : HastyBoolSetting(Category, "Rumble Enabled",
+		"Enable HastyControl's old rumble implementation (Before Patch 1.7.a)", false);
+
+	public class RumbleIntensitySetting()
+		: HastyFloatSetting(Category, "Rumble Intensity", "Overall rumble intensity.", 0f, 5f, 1f);
+
+	public class RumbleOnDamageSetting() : HastyFloatSetting(Category, "Rumble on Damage Intensity",
+		"Rumble intensity when taking damage.", 0f, 5f, 1f);
+
+	public class RumbleOnLandSetting() : HastyFloatSetting(Category, "Rumble on Land Intensity",
+		"Rumble intensity when landing. Different landing grades have different rumble properties.", 0f, 5f, 1f);
+
+	public class RumbleOnFastRunSetting() : HastyFloatSetting(Category, "Rumble on Fast Run Intensity",
+		"Rumble intensity when charging up fast run.", 0f, 5f, 1f);
+
+	public class RumbleOnSparkPickupSetting() : HastyFloatSetting(Category, "Rumble on Spark Pickup Intensity",
+		"Rumble intensity when picking up sparks.", 0f, 5f, 1f);
+
+	public class RumbleOnBoostRingSetting() : HastyFloatSetting(Category, "Rumble on Boost Ring Intensity",
+		"Rumble intensity when going through a boost ring.", 0f, 5f, 1f);
+
+	public class RumbleOnBoardBoostSetting() : HastyFloatSetting(Category, "Rumble on Board Boost Intensity",
+		"Rumble intensity when board boosting.", 0f, 5f, 1f);
+
+	public class RumbleOnGrappleSetting() : HastyFloatSetting(Category, "Rumble on Grapple Intensity",
+		"Rumble intensity when activating the grappling hook (Heir's Javelin).", 0f, 5f, 1f);
+
+	public class RumbleOnFlySetting() : HastyFloatSetting(Category, "Rumble on Poncho Intensity",
+		"Rumble intensity when activating the poncho (Sage's Cowl).", 0f, 5f, 1f);
+
+	public class ResetSettingsSetting() : HastyButtonSetting(Category, "Revert Settings to Defaults",
+		"Resets all HastyControls settings to defaults.", "Reset", HastySettings.Reset);
+
+	private static HasteSettingsHandler? settingsHandler;
+	private static readonly List<IHastySetting> hastySettings = new();
 
 	public static void Initialize(HasteSettingsHandler settingsHandler)
 	{
@@ -67,17 +138,17 @@ public static class HastySettings
 
 		// bindings
 		GyroButtonAction = AddInputAction(
-			id: new Guid("3301647b-49b9-44eb-8bec-5d0dce7fda60"),
-			name: "Gyro Modifier Button",
-			path: "<GamePad>/rightStickPress",
-			actionMap: null
+			new Guid("3301647b-49b9-44eb-8bec-5d0dce7fda60"),
+			"Gyro Modifier Button",
+			"<GamePad>/rightStickPress",
+			null
 		);
 
 		GyroCalibrateAction = AddInputAction(
-			id: new Guid("12181a04-3618-4741-acbe-c2016ca52bdc"),
-			name: "Gyro Calibrate Button",
-			path: "<GamePad>/select",
-			actionMap: ModInfo.Guid
+			new Guid("12181a04-3618-4741-acbe-c2016ca52bdc"),
+			"Gyro Calibrate Button",
+			"<GamePad>/select",
+			ModInfo.Guid
 		);
 
 		// settings
@@ -127,42 +198,37 @@ public static class HastySettings
 
 	public static void Reset()
 	{
-		foreach (var setting in hastySettings)
-		{
-			setting.Reset();
-		}
+		foreach (IHastySetting? setting in hastySettings) setting.Reset();
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static T GetSetting<T>() where T : Setting, new() => SettingsStorage<T>.Setting;
-
-	static T Add<T>(IHastySetting? parent = null) where T : Setting, IHastySetting, new()
+	public static T GetSetting<T>() where T : Setting, new()
 	{
-		var setting = SettingsStorage<T>.Setting;
+		return SettingsStorage<T>.Setting;
+	}
+
+	private static T Add<T>(IHastySetting? parent = null) where T : Setting, IHastySetting, new()
+	{
+		T setting = SettingsStorage<T>.Setting;
 		setting.Parent = parent;
-		
+
 		hastySettings.Add(setting);
 		settingsHandler!.AddSetting(setting);
 		return setting;
 	}
 
 	// based on https://github.com/netux/haste-LookBehind/blob/main/Utils.cs
-	static InputAction AddInputAction(Guid id, string name, string? path, string? actionMap)
+	private static InputAction AddInputAction(Guid id, string name, string? path, string? actionMap)
 	{
-		string actionName = $"{ModInfo.Guid}.{id}"; // generate unique name
+		var actionName = $"{ModInfo.Guid}.{id}"; // generate unique name
 
 		// all actions must be disabled before adding a new one
-		foreach (InputActionMap other in InputSystem.actions.actionMaps)
-		{
-			other.Disable();
-		}
+		foreach (InputActionMap other in InputSystem.actions.actionMaps) other.Disable();
 
 		// add or create action map, falling back to game's default
 		InputActionMap map = InputHandler.Instance.Default;
-		if (actionMap != null)
-		{
-			map = InputSystem.actions.FindActionMap(actionMap) ?? InputSystem.actions.AddActionMap(actionMap);
-		}
+		if (actionMap != null) map = InputSystem.actions.FindActionMap(actionMap) ?? InputSystem.actions.AddActionMap(actionMap);
+
 		map.Disable();
 
 		// check if the action name isnt in use
@@ -172,21 +238,17 @@ public static class HastySettings
 		// add action and binding
 		InputAction action = map.AddAction(actionName, InputActionType.Button);
 		if (path != null)
-		{
-			action.AddBinding(new InputBinding()
+			action.AddBinding(new InputBinding
 			{
 				id = id,
 				path = path,
 				groups = ";Gamepad",
-				interactions = "hold(duration=0)",
+				interactions = "hold(duration=0)"
 			});
-		}
 
 		// re-enable actions
-		foreach (InputActionMap other in InputSystem.actions.actionMaps)
-		{
-			other.Enable();
-		}
+		foreach (InputActionMap other in InputSystem.actions.actionMaps) other.Enable();
+
 		map.Enable();
 
 		// force unity to update its caches
@@ -205,7 +267,7 @@ public static class HastySettings
 		return new UnlocalizedString($"{name}\n<size=60%><alpha=#50>{description}");
 	}
 
-	static class SettingsStorage<T> where T : Setting, new()
+	private static class SettingsStorage<T> where T : Setting, new()
 	{
 		public static T Setting = new();
 	}

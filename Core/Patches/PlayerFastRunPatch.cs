@@ -4,9 +4,12 @@ namespace HastyControls.Core.Patches;
 
 internal class PlayerFastRunPatch : IHastyPatch
 {
-	static FieldInfo playerField = typeof(PlayerSlowMovement).GetField("player", BindingFlags.Instance | BindingFlags.NonPublic)!;
-	static FieldInfo chargeCounterField = typeof(PlayerSlowMovement).GetField("chargeCounter", BindingFlags.Instance | BindingFlags.NonPublic)!;
-	
+	private static readonly FieldInfo playerField =
+		typeof(PlayerSlowMovement).GetField("player", BindingFlags.Instance | BindingFlags.NonPublic)!;
+
+	private static readonly FieldInfo chargeCounterField =
+		typeof(PlayerSlowMovement).GetField("chargeCounter", BindingFlags.Instance | BindingFlags.NonPublic)!;
+
 	public void Patch(HastyControlsMod mod)
 	{
 		On.PlayerSlowMovement.CheckMode += (orig, self) =>
@@ -17,7 +20,7 @@ internal class PlayerFastRunPatch : IHastyPatch
 
 			float chargeCounter = (float)chargeCounterField.GetValue(self);
 			PlayerCharacter player = (PlayerCharacter)playerField.GetValue(self);
-			
+
 			bool charging = chargeCounter > 0f;
 			bool wasCharging = prevChargeCounter > 0f;
 			if (charging != wasCharging)
@@ -31,11 +34,11 @@ internal class PlayerFastRunPatch : IHastyPatch
 				mod.Events.PlayerCharging?.Invoke(player.player, chargeCounter, chargingUp);
 			}
 		};
-		
+
 		On.PlayerSlowMovement.GoFast += (orig, self) =>
 		{
 			orig(self);
-			
+
 			PlayerCharacter player = (PlayerCharacter)playerField.GetValue(self);
 			mod.Events.PlayerChargingEnded?.Invoke(player.player);
 		};

@@ -4,10 +4,11 @@ using static HastyControls.Core.Settings.HastySettings;
 
 namespace HastyControls.Core;
 
+// legacy rumble implementation from before Haste added rumble on update 1.7.a
 public class HasteRumble
 {
-	ControllerManager controllerManager;
-	Dictionary<string, RumbleEvent> rumbleEvents = new();
+	private readonly ControllerManager controllerManager;
+	private readonly Dictionary<string, RumbleEvent> rumbleEvents = new();
 
 	public HasteRumble(HasteEvents events, ControllerManager controllerManager)
 	{
@@ -34,7 +35,7 @@ public class HasteRumble
 		float high = 0f;
 
 		// add up all rumble events and reduce their lifetimes
-		foreach (var (id, rumble) in rumbleEvents)
+		foreach ((string? id, RumbleEvent? rumble) in rumbleEvents)
 		{
 			if (rumble.Lifetime <= 0) continue;
 
@@ -46,7 +47,8 @@ public class HasteRumble
 		controllerManager.ActiveController?.Rumble(low, high, 0.5f);
 	}
 
-	void Rumble<TSetting>(string id, float lowFrequency, float highFrequency, float duration) where TSetting : FloatSetting, new()
+	private void Rumble<TSetting>(string id, float lowFrequency, float highFrequency, float duration)
+		where TSetting : FloatSetting, new()
 	{
 		RumbleEvent rumble;
 		if (!rumbleEvents.TryGetValue(id, out rumble))
@@ -161,7 +163,7 @@ public class HasteRumble
 		Rumble<RumbleOnGrappleSetting>(nameof(OnPlayerGrappleAbilityFinished), 0.6f, 0.6f, 0.2f);
 	}
 
-	class RumbleEvent
+	private class RumbleEvent
 	{
 		public float LowFrequency;
 		public float HighFrequency;

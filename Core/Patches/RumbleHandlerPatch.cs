@@ -9,19 +9,20 @@ namespace HastyControls.Core.Patches;
 // this should allow for better controller support than what Unity normally allows for
 internal class RumbleHandlerPatch : IHastyPatch
 {
-	HastyControlsMod? mod;
-	Hook? hook;
-	
-	static FieldInfo m_activeRumbleInstancesField = typeof(RumbleHandler).GetField("m_activeRumbleInstances", BindingFlags.Instance | BindingFlags.NonPublic)!;
-	
+	private HastyControlsMod? mod;
+	private Hook? hook;
+
+	private static readonly FieldInfo m_activeRumbleInstancesField =
+		typeof(RumbleHandler).GetField("m_activeRumbleInstances", BindingFlags.Instance | BindingFlags.NonPublic)!;
+
 	public void Patch(HastyControlsMod mod)
 	{
 		this.mod = mod;
 		hook = new(typeof(RumbleHandler).GetMethod("LateUpdate", BindingFlags.Instance | BindingFlags.NonPublic)!, LateUpdate);
 	}
 
-	delegate void orig_LateUpdate(RumbleHandler self);
-	
+	private delegate void orig_LateUpdate(RumbleHandler self);
+
 	private void LateUpdate(orig_LateUpdate orig, RumbleHandler self)
 	{
 		if (!self.RumbleEnabled) return;
@@ -30,8 +31,9 @@ internal class RumbleHandlerPatch : IHastyPatch
 		if (GetSetting<RumbleEnabledLegacySetting>().Value) return;
 
 		// combine rumble values from all instances. sorted by priority
-		List<RumbleInstance> activeRumbleInstances = (List<RumbleInstance>)m_activeRumbleInstancesField.GetValue(self);
-		IOrderedEnumerable<RumbleInstance> sortedInstances = activeRumbleInstances.OrderBy(instance => instance.Priority());
+		var activeRumbleInstances = (List<RumbleInstance>)m_activeRumbleInstancesField.GetValue(self);
+		var sortedInstances = activeRumbleInstances.OrderBy(instance => instance.Priority());
+		
 		float low = 0f;
 		float high = 0f;
 		foreach (RumbleInstance instance in sortedInstances)

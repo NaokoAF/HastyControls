@@ -9,10 +9,10 @@ public abstract class HastyFloatSetting : FloatSetting, IHastySetting
 	public event Action<float>? Applied;
 	public IHastySetting? Parent { get; set; }
 
-	string category;
-	float defaultValue;
-	float2 minMax;
-	LocalizedString displayName;
+	private readonly string category;
+	private readonly float defaultValue;
+	private readonly float2 minMax;
+	private readonly LocalizedString displayName;
 
 	public HastyFloatSetting(string category, string name, string description, float min, float max, float defaultValue)
 	{
@@ -22,11 +22,12 @@ public abstract class HastyFloatSetting : FloatSetting, IHastySetting
 		displayName = HastySettings.CreateDisplayName(name, description);
 	}
 
-	public string GetCategory() => category;
-	public LocalizedString GetDisplayName() => displayName;
 	protected override float GetDefaultValue() => defaultValue;
 	protected override float2 GetMinMaxValue() => minMax;
+
+	public string GetCategory() => category;
+	public LocalizedString GetDisplayName() => displayName;
 	public override void ApplyValue() => Applied?.Invoke(Value);
-	public void Reset() => Value = defaultValue;
 	public bool CanShow() => Parent?.CanShowChildren() ?? true;
+	public void Reset() => Value = defaultValue;
 }

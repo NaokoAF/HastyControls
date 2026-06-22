@@ -16,6 +16,7 @@ public enum SDL_InitFlags : uint
 public unsafe partial class SDL
 {
 	public delegate SDLBool SDL_Init(SDL_InitFlags flags);
+
 	public delegate void SDL_Quit();
 
 	public SDL_Init Init;

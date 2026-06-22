@@ -1,7 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Numerics;
 using HastyControls.SDL3;
-using System.Numerics;
-using Steamworks;
 
 namespace HastyControls.Core;
 

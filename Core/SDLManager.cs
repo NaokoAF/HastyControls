@@ -1,5 +1,5 @@
-﻿using HastyControls.SDL3;
-using System.Numerics;
+﻿using System.Numerics;
+using HastyControls.SDL3;
 
 namespace HastyControls.Core;
 
@@ -9,7 +9,7 @@ public unsafe class SDLManager
 	public string? Revision => revision;
 	public string? CurrentError => sdl.PtrToStringUTF8(sdl.GetError());
 	public IReadOnlyCollection<SDLController> Controllers => controllers.Values;
-	
+
 	public event Action<SDLController>? ControllerAdded;
 	public event Action<SDLController>? ControllerRemoved;
 	public event Action<SDLController, ControllerButton, bool>? ControllerButtonUpdated;
@@ -17,10 +17,10 @@ public unsafe class SDLManager
 	public event Action<SDLController, SDL_SensorType, Vector3, ulong>? ControllerSensorUpdated;
 	public event Action<SDLController, int, int, SDLTouchpadFinger>? ControllerTouchpadUpdated;
 
-	SDL sdl;
-	Dictionary<SDL_JoystickID, SDLController> controllers = new();
-	SDLVersion version;
-	string? revision;
+	private readonly SDL sdl;
+	private readonly Dictionary<SDL_JoystickID, SDLController> controllers = new();
+	private readonly SDLVersion version;
+	private readonly string? revision;
 
 	public SDLManager(SDL sdl)
 	{
@@ -78,7 +78,7 @@ public unsafe class SDLManager
 		}
 	}
 
-	void OnControllerAdded(SDL_GamepadDeviceEvent evnt)
+	private void OnControllerAdded(SDL_GamepadDeviceEvent evnt)
 	{
 		// open and create controller
 		SDL_JoystickID id = evnt.which;
@@ -94,7 +94,7 @@ public unsafe class SDLManager
 		ControllerAdded?.Invoke(controller);
 	}
 
-	void OnControllerRemoved(SDL_GamepadDeviceEvent evnt)
+	private void OnControllerRemoved(SDL_GamepadDeviceEvent evnt)
 	{
 		if (!controllers.TryGetValue(evnt.which, out var controller)) return;
 
@@ -104,7 +104,7 @@ public unsafe class SDLManager
 		ControllerRemoved?.Invoke(controller);
 	}
 
-	void OnControllerButtonUpdate(SDL_GamepadButtonEvent evnt)
+	private void OnControllerButtonUpdate(SDL_GamepadButtonEvent evnt)
 	{
 		if (!controllers.TryGetValue(evnt.which, out var controller)) return;
 		controller.SetButton(evnt.button, evnt.down);
@@ -112,7 +112,7 @@ public unsafe class SDLManager
 		ControllerButtonUpdated?.Invoke(controller, (ControllerButton)evnt.button, evnt.down);
 	}
 
-	void OnControllerAxisUpdate(SDL_GamepadAxisEvent evnt)
+	private void OnControllerAxisUpdate(SDL_GamepadAxisEvent evnt)
 	{
 		if (!controllers.TryGetValue(evnt.which, out var controller)) return;
 
@@ -131,7 +131,7 @@ public unsafe class SDLManager
 		ControllerAxisUpdated?.Invoke(controller, (ControllerAxis)evnt.axis, valueF);
 	}
 
-	void OnControllerSensorUpdate(SDL_GamepadSensorEvent evnt)
+	private void OnControllerSensorUpdate(SDL_GamepadSensorEvent evnt)
 	{
 		if (!controllers.TryGetValue(evnt.which, out var controller)) return;
 
@@ -153,7 +153,7 @@ public unsafe class SDLManager
 		ControllerSensorUpdated?.Invoke(controller, type, data, timestamp);
 	}
 
-	void OnControllerTouchpadUpdate(SDL_GamepadTouchpadEvent evnt)
+	private void OnControllerTouchpadUpdate(SDL_GamepadTouchpadEvent evnt)
 	{
 		if (!controllers.TryGetValue(evnt.which, out var controller)) return;
 

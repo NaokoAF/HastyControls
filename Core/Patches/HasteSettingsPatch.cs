@@ -9,7 +9,7 @@ internal class HasteSettingsPatch : IHastyPatch
 		On.GameHandler.Awake += (orig, self) =>
 		{
 			orig(self);
-			
+
 			mod.Logger.Msg("Initializing HastySettings");
 			HastySettings.Initialize(self.SettingsHandler);
 		};

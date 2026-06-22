@@ -4,6 +4,6 @@ public interface IHastySetting : IExposedSetting, IConditionalSetting
 {
 	public IHastySetting? Parent { get; set; }
 
-	void Reset();
 	bool CanShowChildren() => CanShow();
+	void Reset();
 }

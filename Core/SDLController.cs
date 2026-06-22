@@ -1,5 +1,5 @@
-﻿using HastyControls.SDL3;
-using System.Numerics;
+﻿using System.Numerics;
+using HastyControls.SDL3;
 
 namespace HastyControls.Core;
 
@@ -28,7 +28,7 @@ public unsafe class SDLController
 	public ulong AccelerometerTimestamp;
 	public SDLTouchpadFinger[][] Touchpads;
 
-	SDL sdl;
+	private SDL sdl;
 
 	public SDLController(SDL sdl, SDL_JoystickID id, SDL_Gamepad* gamepad)
 	{
@@ -57,7 +57,7 @@ public unsafe class SDLController
 		sdl.SetGamepadSensorEnabled(Gamepad, SDL_SensorType.SDL_SENSOR_ACCEL, enabled);
 	}
 
-	// user friendly values. frequency ranges between 0 and 1, and duration in seconds
+	// user-friendly values. frequency ranges between 0 and 1, and duration in seconds
 	public void Rumble(float lowFrequency, float highFrequency, float duration)
 	{
 		sdl.RumbleGamepad(Gamepad,
@@ -71,12 +71,12 @@ public unsafe class SDLController
 	{
 		foreach (var touchpad in Touchpads)
 		{
-			foreach (var finger in touchpad)
+			foreach (SDLTouchpadFinger finger in touchpad)
 			{
-				if (finger.Down)
-					return true;
+				if (finger.Down) return true;
 			}
 		}
+
 		return false;
 	}
 
@@ -89,7 +89,7 @@ public unsafe class SDLController
 		// 2. clear the bit so we can override it
 		// 3. or with the new bit
 		uint downBit = *(byte*)&down;
-		Buttons = Buttons & ~(1u << button) | (downBit << button);
+		Buttons = (Buttons & ~(1u << button)) | (downBit << button);
 	}
 
 	public bool GetButton(int button)

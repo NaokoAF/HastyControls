@@ -1,6 +1,6 @@
-﻿using GyroHelpers;
+﻿using System.Numerics;
+using GyroHelpers;
 using GyroHelpers.GyroSpaces;
-using System.Numerics;
 using static HastyControls.Core.Settings.HastySettings;
 
 namespace HastyControls.Core;
@@ -24,12 +24,12 @@ internal class GyroState
 		gyroProcessor.Acceleration.SensitivitySlow = 1f;
 		gyroProcessor.Acceleration.SensitivityFast = 1f;
 	}
-	
+
 	public void Begin()
 	{
 		gyroInput.Begin();
-		
-		var gyroSpaceSetting = GetSetting<GyroSpaceSetting>().Value;
+
+		GyroSpace gyroSpaceSetting = GetSetting<GyroSpaceSetting>().Value;
 		if (currentGyroSpace != gyroSpaceSetting)
 		{
 			currentGyroSpace = gyroSpaceSetting;
@@ -42,19 +42,19 @@ internal class GyroState
 				_ => new LocalGyroSpace(GyroAxis.Yaw),
 			};
 		}
-		
-		var gyroOrientationSetting = GetSetting<GyroOrientationSetting>().Value;
+
+		GyroOrientation gyroOrientationSetting = GetSetting<GyroOrientationSetting>().Value;
 		currentOrientation = gyroOrientationSetting == GyroOrientation.Auto ? DefaultOrientation : gyroOrientationSetting;
-		
-		var gyroSmoothingThresholdSetting = GetSetting<GyroSmoothingThresholdSetting>().Value;
-		var gyroSmoothingTimeSetting = GetSetting<GyroSmoothingTimeSetting>().Value;
-		var gyroTighteningSetting = GetSetting<GyroTighteningSetting>().Value;
+
+		float gyroSmoothingThresholdSetting = GetSetting<GyroSmoothingThresholdSetting>().Value;
+		float gyroSmoothingTimeSetting = GetSetting<GyroSmoothingTimeSetting>().Value;
+		float gyroTighteningSetting = GetSetting<GyroTighteningSetting>().Value;
 		gyroProcessor.SmoothingThresholdDirect = gyroSmoothingThresholdSetting * MathHelper.DegreesToRadians;
 		gyroProcessor.SmoothingThresholdSmooth = gyroSmoothingThresholdSetting * MathHelper.DegreesToRadians * 0.5f;
 		gyroProcessor.SmoothingTime = gyroSmoothingTimeSetting;
 		gyroProcessor.TighteningThreshold = gyroTighteningSetting * MathHelper.DegreesToRadians;
 	}
-	
+
 	public Vector2 Update(bool active, float deltaTime)
 	{
 		if (BiasCalibrationTime > 0)
@@ -73,7 +73,7 @@ internal class GyroState
 
 		return gyroProcessor.Update(gyroInput.Gyro, deltaTime);
 	}
-	
+
 	public void AddGyroSample(Vector3 gyro, ulong timestamp)
 	{
 		gyro = currentOrientation switch
@@ -82,7 +82,7 @@ internal class GyroState
 			GyroOrientation.Ally => new(-gyro.Z, -gyro.X, gyro.Y),
 			_ => gyro,
 		};
-		
+
 		gyroInput.AddGyroSample(gyro, timestamp);
 	}
 
@@ -94,7 +94,7 @@ internal class GyroState
 			GyroOrientation.Ally => new(-accel.Z, -accel.X, accel.Y),
 			_ => accel,
 		};
-		
+
 		gyroInput.AddAccelerometerSample(accel, timestamp);
 	}
 }

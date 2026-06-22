@@ -11,7 +11,7 @@ public class SteamInputManager : IDisposable
 
 	private const float GyroScale = 2000f * (MathF.PI / 180f) / 32768f; // 2000 degrees/s to radians/s
 	private const float AccelScale = 2.0f * 9.80665f / 32768f; // 2G to m/s2
-	
+
 	public SteamInputManager()
 	{
 		SteamInput.Init(true);
@@ -20,7 +20,7 @@ public class SteamInputManager : IDisposable
 	public void Update(float deltaTime)
 	{
 		SteamInput.RunFrame();
-		
+
 		timestamp += (ulong)(deltaTime * 1000000000.0); // nanoseconds
 	}
 
@@ -32,7 +32,7 @@ public class SteamInputManager : IDisposable
 			accel = default;
 			return false;
 		}
-		
+
 		InputHandle_t handle = new(controller.SteamHandle);
 		InputMotionData_t motionData = SteamInput.GetMotionData(handle);
 
@@ -40,7 +40,7 @@ public class SteamInputManager : IDisposable
 		accel = new Vector3(motionData.posAccelX, motionData.posAccelZ, -motionData.posAccelY) * AccelScale;
 		return true;
 	}
-	
+
 	public void Dispose()
 	{
 		SteamInput.Shutdown();

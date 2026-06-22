@@ -4,7 +4,7 @@ namespace HastyControls.Core;
 
 public class UnityDebugLogger : ILogger
 {
-	const string Prefix = $"[{ModInfo.Name}] ";
+	private const string Prefix = $"[{ModInfo.Name}] ";
 
 	public void Error(string message)
 	{

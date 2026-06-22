@@ -5,5 +5,5 @@ public enum GyroOrientation
 	Auto,
 	Normal,
 	Deck,
-	Ally
+	Ally,
 }

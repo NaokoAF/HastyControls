@@ -8,7 +8,7 @@ internal class LookInputPatch : IHastyPatch
 {
 	private MouseSensitivitySetting? mouseSensitivitySetting;
 	private GamepadSensitivitySetting? gamepadSensitivitySetting;
-	
+
 	public void Patch(HastyControlsMod mod)
 	{
 		On.PlayerCharacter.PlayerInput.SampleInput += (orig, self, character, autoRun) =>

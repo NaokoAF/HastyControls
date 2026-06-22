@@ -2,5 +2,8 @@
 
 public enum GyroSpace
 {
-	LocalYaw, LocalRoll, PlayerTurn, PlayerLean
+	LocalYaw,
+	LocalRoll,
+	PlayerTurn,
+	PlayerLean,
 }

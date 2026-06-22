@@ -7,7 +7,7 @@ namespace HastyControls.SDL3;
 // if someone more knowledgeable than me can figure out how to load the SDL3 DLL into Haste, feel free to help
 public unsafe partial class SDL : IDisposable
 {
-	IntPtr library;
+	private nint library;
 
 	public SDL(string path)
 	{
@@ -80,19 +80,23 @@ public unsafe partial class SDL : IDisposable
 
 	public string? PtrToStringUTF8(byte* ptr, bool free = false)
 	{
-		string? s = Marshal.PtrToStringUTF8((IntPtr)ptr);
-		if (free) this.free((IntPtr)ptr);
+		string? s = Marshal.PtrToStringUTF8((nint)ptr);
+		if (free) this.free((nint)ptr);
 		return s;
 	}
 
-	T GetFunction<T>() where T : Delegate => (T)Marshal.GetDelegateForFunctionPointer(GetProcAddress(library, typeof(T).Name), typeof(T));
+	private T GetFunction<T>() where T : Delegate
+	{
+		nint pointer = GetProcAddress(library, typeof(T).Name);
+		return (T)Marshal.GetDelegateForFunctionPointer(pointer, typeof(T));
+	}
 
 	[DllImport("kernel32.dll", SetLastError = true)]
-	public static extern IntPtr LoadLibrary(string lib);
+	private static extern nint LoadLibrary(string lpLibFileName);
 
 	[DllImport("kernel32.dll", SetLastError = true)]
-	public static extern void FreeLibrary(IntPtr module);
+	private static extern void FreeLibrary(nint hLibModule);
 
 	[DllImport("kernel32.dll", SetLastError = true)]
-	public static extern IntPtr GetProcAddress(IntPtr module, string proc);
+	private static extern nint GetProcAddress(nint hModule, string lpProcName);
 }

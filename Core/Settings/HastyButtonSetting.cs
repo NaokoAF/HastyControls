@@ -7,10 +7,10 @@ public abstract class HastyButtonSetting : ButtonSetting, IHastySetting
 {
 	public IHastySetting? Parent { get; set; }
 
-	string category;
-	LocalizedString displayName;
-	string buttonText;
-	Action callback;
+	private readonly string category;
+	private readonly LocalizedString displayName;
+	private readonly string buttonText;
+	private readonly Action callback;
 
 	public HastyButtonSetting(string category, string name, string description, string buttonText, Action callback)
 	{
@@ -22,9 +22,11 @@ public abstract class HastyButtonSetting : ButtonSetting, IHastySetting
 
 	public string GetCategory() => category;
 	public LocalizedString GetDisplayName() => displayName;
-
-	public override void OnClicked(ISettingHandler settingHandler) => callback();
 	public override string GetButtonText() => buttonText;
-	public void Reset() { }
+	public override void OnClicked(ISettingHandler settingHandler) => callback();
 	public bool CanShow() => Parent?.CanShowChildren() ?? true;
+
+	public void Reset()
+	{
+	}
 }
