@@ -1,8 +1,5 @@
-using System.Reflection;
 using HastyControls.Core;
 using HastyControls.Core.Patches;
-using HastyControls.Core.Settings;
-using HastyControls.SDL3;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using ILogger = HastyControls.Core.ILogger;
@@ -20,39 +17,28 @@ internal class HastyControlsMod : MonoBehaviour
 	public ControllerManager ControllerManager => controllerManager!;
 	public HasteRumble Rumble => rumble!;
 
-	private ILogger logger = new UnityDebugLogger();
-	private HasteEvents events = new();
-	private GyroPauser? gyroPauser;
+	private ILogger? logger;
 	private SDLManager? sdl;
+	private HasteEvents? events;
+	private GyroPauser? gyroPauser;
 	private SteamInputManager? steamInputManager;
 	private ControllerManager? controllerManager;
 	private HasteRumble? rumble;
 	private readonly List<IHastyPatch> patches = new();
 
-	private void Awake()
+	public void Initialize(ILogger logger, SDLManager sdl)
 	{
-		logger.Msg($"Hello from {ModInfo.Name} {ModInfo.Version}");
-
-		// Landfall's modding library loads all DLLs in the workshop folder, but when it tries to load SDL an error happens
-		// so we need to change the extension to something else to avoid that error
-		// I'm sure there's a better way around this, but this is all I could come up with
-		string sdlPath = Path.Combine(GetAssemblyDirectory(), "SDL3.dll.assetbundle");
-		logger.Msg($"Loading SDL from {sdlPath}");
-		sdl = new(new SDL(sdlPath));
-
-		Logger.Msg($"SDL Version: {sdl.Revision}");
-
-		// initialize
+		this.logger = logger;
+		this.sdl = sdl;
+		events = new();
 		gyroPauser = new(events);
 		steamInputManager = new();
 		controllerManager = new(sdl, steamInputManager);
 		rumble = new(events, controllerManager);
 
 		// logging
-		sdl.ControllerAdded += controller =>
-			Logger.Msg($"Controller added - {GetControllerPrintName(controller)}");
-		sdl.ControllerRemoved += controller =>
-			Logger.Msg($"Controller removed - {GetControllerPrintName(controller)}");
+		sdl.ControllerAdded += controller => Logger.Msg($"Controller added - {GetControllerPrintName(controller)}");
+		sdl.ControllerRemoved += controller => Logger.Msg($"Controller removed - {GetControllerPrintName(controller)}");
 		ControllerManager.GyroBiasCalibrated += (controller, bias) =>
 			Logger.Msg($"Controller calibrated - {GetControllerPrintName(controller)} (Bias: {bias})");
 		ControllerManager.GyroOrientationChanged += (controller, orientation) =>
@@ -67,12 +53,6 @@ internal class HastyControlsMod : MonoBehaviour
 		// as a workaround, we toggle gyro off and back on when pausing or alt-tabbing
 		Events.EscapeMenuToggled += _ => ControllerManager.ForceEnableGyro();
 		Application.focusChanged += _ => ControllerManager.ForceEnableGyro();
-
-		// initialize SDL
-		if (!sdl.Init())
-		{
-			Logger.Msg($"Failed to initialize SDL: {sdl.CurrentError}");
-		}
 
 		// apply patches
 		foreach (Type type in typeof(IHastyPatch).Assembly.GetTypes())
@@ -113,15 +93,6 @@ internal class HastyControlsMod : MonoBehaviour
 
 		steamInputManager!.Update(Time.unscaledDeltaTime);
 		controllerManager.Update(Time.unscaledDeltaTime);
-	}
-
-	// janky solution to find where the workshop folder is
-	private static string GetAssemblyDirectory()
-	{
-		string codeBase = Assembly.GetExecutingAssembly().CodeBase;
-		UriBuilder uri = new UriBuilder(codeBase);
-		string path = Uri.UnescapeDataString(uri.Path);
-		return Path.GetDirectoryName(path)!;
 	}
 
 	private static void UpdateConfig()

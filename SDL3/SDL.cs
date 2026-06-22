@@ -11,7 +11,7 @@ public unsafe partial class SDL : IDisposable
 
 	public SDL(string path)
 	{
-		library = LoadLibrary(path);
+		library = NativeLibraryLoader.Open(path);
 
 		// SDL_init
 		Init = GetFunction<SDL_Init>();
@@ -75,7 +75,7 @@ public unsafe partial class SDL : IDisposable
 
 	public void Dispose()
 	{
-		FreeLibrary(library);
+		NativeLibraryLoader.Close(library);
 	}
 
 	public string? PtrToStringUTF8(byte* ptr, bool free = false)
@@ -87,16 +87,7 @@ public unsafe partial class SDL : IDisposable
 
 	private T GetFunction<T>() where T : Delegate
 	{
-		nint pointer = GetProcAddress(library, typeof(T).Name);
+		nint pointer = NativeLibraryLoader.GetSymbol(library, typeof(T).Name);
 		return (T)Marshal.GetDelegateForFunctionPointer(pointer, typeof(T));
 	}
-
-	[DllImport("kernel32.dll", SetLastError = true)]
-	private static extern nint LoadLibrary(string lpLibFileName);
-
-	[DllImport("kernel32.dll", SetLastError = true)]
-	private static extern void FreeLibrary(nint hLibModule);
-
-	[DllImport("kernel32.dll", SetLastError = true)]
-	private static extern nint GetProcAddress(nint hModule, string lpProcName);
 }

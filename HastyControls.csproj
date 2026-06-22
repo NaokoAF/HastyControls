@@ -1,39 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<TargetFramework>netstandard2.1</TargetFramework>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>enable</Nullable>
-		<RootNamespace>HastyControls</RootNamespace>
-		<AssemblyName>HastyControls</AssemblyName>
-		<LangVersion>default</LangVersion>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DebugSymbols>true</DebugSymbols>
-		<DebugType>embedded</DebugType>
-		<DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>HastyControls</RootNamespace>
+        <AssemblyName>HastyControls</AssemblyName>
+        <LangVersion>default</LangVersion>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>embedded</DebugType>
+        <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
 
-		<HasteDir Condition="$([MSBuild]::IsOSPlatform('Windows'))">C:\Program Files (x86)\Steam\steamapps\common\Haste</HasteDir>
-		<HasteDir Condition="$([MSBuild]::IsOSPlatform('Linux'))">$(HOME)/.steam/steam/steamapps/common/Haste</HasteDir>
-	</PropertyGroup>
+        <HasteDir Condition="$([MSBuild]::IsOSPlatform('Windows'))">C:\Program Files (x86)\Steam\steamapps\common\Haste</HasteDir>
+        <HasteDir Condition="$([MSBuild]::IsOSPlatform('Linux'))">$(HOME)/.steam/steam/steamapps/common/Haste</HasteDir>
+    </PropertyGroup>
 
-	<ItemGroup>
-		<!-- Game DLLs -->
-		<Reference Include="$(HasteDir)\Haste_Data\Managed\*.dll" Private="false" />
-	</ItemGroup>
+    <ItemGroup>
+        <!-- Game DLLs -->
+        <Reference Include="$(HasteDir)\Haste_Data\Managed\*.dll" Private="false" />
+    </ItemGroup>
 
-	<ItemGroup>
-		<None Update="SDL3.dll">
-			<Pack>true</Pack>
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
-
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="$([MSBuild]::IsOSPlatform('Windows'))">
-		<Exec Command="COPY &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\Workshop&quot;" />
-		<Exec Command="COPY &quot;$(TargetDir)SDL3.dll&quot; &quot;$(ProjectDir)..\Workshop\SDL3.dll.assetbundle&quot;" />
-	</Target>
-	
-	<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="$([MSBuild]::IsOSPlatform('Linux'))">
-		<Exec Command="cp &quot;$(TargetPath)&quot; &quot;$(ProjectDir)../Workshop&quot;" />
-		<Exec Command="cp &quot;$(TargetDir)SDL3.dll&quot; &quot;$(ProjectDir)../Workshop/SDL3.dll.assetbundle&quot;" />
-	</Target>
+    <ItemGroup>
+        <None Update="native\linux-x64\libSDL3.so">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="native\win-x64\SDL3.dll.dontloadme">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
 </Project>
