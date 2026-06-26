@@ -14,7 +14,13 @@ public abstract class HastyEnumSetting<T> : EnumSetting<T>, IHastySetting where 
 	private readonly LocalizedString displayName;
 	private readonly List<LocalizedString> choices;
 
-	public HastyEnumSetting(string category, string name, string description, T defaultValue, IEnumerable<string>? choices = null)
+	public HastyEnumSetting(
+		string category,
+		string name,
+		string description,
+		T defaultValue,
+		IEnumerable<string>? choices = null
+	)
 	{
 		this.category = category;
 		this.defaultValue = defaultValue;

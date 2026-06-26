@@ -15,14 +15,18 @@ public abstract class HastyBoolSetting : BoolSetting, IHastySetting
 	private readonly bool defaultValue;
 	private readonly LocalizedString displayName;
 
-	public HastyBoolSetting(string category, string name, string description, bool defaultValue,
-		string offChoice = "Off", string onChoice = "On")
+	public HastyBoolSetting(
+		string category,
+		string name,
+		string description,
+		bool defaultValue
+	)
 	{
 		this.category = category;
 		this.defaultValue = defaultValue;
 		displayName = HastySettings.CreateDisplayName(name, description);
-		OffString = new UnlocalizedString(offChoice);
-		OnString = new UnlocalizedString(onChoice);
+		OffString = new UnlocalizedString("Off");
+		OnString = new UnlocalizedString("On");
 	}
 
 	protected override bool GetDefaultValue() => defaultValue;

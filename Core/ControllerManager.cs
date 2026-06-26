@@ -27,8 +27,8 @@ public unsafe class ControllerManager
 	private static readonly Dictionary<(ushort, ushort), GyroOrientation> DefaultOrientationMap = new()
 	{
 		{ (0x28de, 0x1205), GyroOrientation.Deck }, // Steam Deck
-		{ (0x0b05, 0x1abe), GyroOrientation.Ally }, // ROG Ally
-		{ (0x0b05, 0x1b4c), GyroOrientation.Ally }, // ROG Ally X
+		{ (0x0b05, 0x1abe), GyroOrientation.Ally }, // ROG Ally (Doesn't work)
+		{ (0x0b05, 0x1b4c), GyroOrientation.Ally }, // ROG Ally X (Doesn't work)
 	};
 
 	public ControllerManager(SDLManager sdl, SteamInputManager steamInput)
@@ -96,7 +96,7 @@ public unsafe class ControllerManager
 	{
 		foreach (var controller in gyroStates.Keys)
 		{
-			// SDL caches the previous sensor enabled value
+			// SDL caches the previous sensor enabled value.
 			// set to false first to force it to be enabled
 			controller.SetGyroEnabled(false);
 			controller.SetGyroEnabled(true);
